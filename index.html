@@ -25,7 +25,7 @@
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   .col{display:grid;gap:10px}
   .grow{flex:1}
-  button,select,input[type="color"],input[type="file"],input[type="number"],input[type="range"],input[type="text"]{
+  button,select,input[type="color"],input[type="file"],input[type="text"]{
     background:#1b2132;color:var(--text);border:1px solid var(--border);border-radius:12px;padding:.6rem .8rem
   }
   button{cursor:pointer;border:0;box-shadow:var(--shadow)}
@@ -36,7 +36,6 @@
   .muted{color:var(--muted)}
   .hidden{display:none!important}
 
-  /* Segmented controls — entoure UNIQUEMENT le bouton actif */
   .seg{display:flex;gap:6px;align-items:center;border:0;background:transparent;padding:2px}
   .seg button{
     border:1px solid transparent;background:transparent;border-radius:10px;padding:.45rem .7rem;transition:box-shadow .15s,border-color .15s,background .15s;
@@ -49,14 +48,12 @@
   }
   .seg[data-disabled="true"]{opacity:.55;pointer-events:none}
 
-  /* Palettes */
   .photo-drop{border:1px dashed var(--border);border-radius:12px;padding:10px}
   canvas{width:100%;max-height:50vh;border-radius:12px;background:#0a0d17}
   .palette{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .palette.stale{opacity:.65;filter:saturate(.6)}
+  .palette.stale{ }
   .chip{width:30px;height:30px;border-radius:7px;border:1px solid rgba(255,255,255,.15);position:relative;cursor:pointer}
 
-  /* Tenue */
   .outfit{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
   .tile{background:#0c0f18;padding:10px;border-radius:12px;border:1px solid var(--border);position:relative}
   .tile.active{outline:2px solid var(--brand); outline-offset:3px; box-shadow:0 0 0 2px rgba(107,193,255,.15) inset;}
@@ -66,28 +63,19 @@
   .zone{font-size:.85rem;color:var(--muted)}
   .toolbar{display:flex;gap:8px;align-items:center;justify-content:flex-end}
 
-  /* Propositions */
   .props{display:grid;gap:10px}
   .prop-row{display:grid;grid-template-columns:minmax(180px,1fr) auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--border);border-radius:12px;background:#0f1421}
   .bars{display:grid;grid-template-columns:1fr 1fr 1fr;height:42px;border-radius:8px;overflow:hidden}
   .bars div{border:1px solid rgba(255,255,255,.15);border-left:none}
   .actions{display:flex;gap:8px;justify-content:flex-end}
 
-  /* Préférences de style */
   .pref-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   @media(max-width:900px){ .pref-grid{grid-template-columns:1fr} }
   .pref-item{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#0f1421;border:1px solid var(--border);border-radius:12px;padding:10px}
-  .pref-item label{font-size:.95rem}
-  /* neutralise tout highlight parent */
-  .pref-item.active{background:#0f1421;border-color:var(--border);box-shadow:none}
-  .pref-item.active label{color:inherit}
 
-  /* Mannequin minimaliste */
   .man-wrap{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;background:#0f1421;border:1px solid var(--border);border-radius:12px;padding:12px}
   .man {width:220px;height:auto;margin:0 auto}
-  .man .sil *{ stroke:#fff; stroke-width:1.5; stroke-linejoin:round; stroke-linecap:round; }
 
-  /* Cœur sous le bandeau (x2) */
   .man-cta{display:flex;justify-content:center;align-items:center;margin-top:-6px}
   #btnHeart{
     font-size:36px; width:80px; height:80px; border-radius:50%;
@@ -95,12 +83,9 @@
   }
   #btnHeart[data-on="true"]{color:var(--love);border-color:var(--love)}
   #btnHeart[data-on="false"]{color:#fff}
-  #btnToMannequin{white-space:nowrap}
 
-  /* Favoris */
   .fav-list{display:grid;gap:10px}
 
-  /* Repli des blocs */
   .block.collapsed { padding-bottom: 10px; gap: 0; }
   .block.collapsed > :not(header) { display: none !important; }
   .block.collapsed header .handle { opacity: .75; }
@@ -117,9 +102,9 @@
     <h1>Assistant Styliste – Harmonie des couleurs</h1>
     <div id="board" class="board">
 
-      <!-- PHOTO -->
+      <!-- PHOTO + PALETTE -->
       <section class="block" id="blk-photo" draggable="true">
-        <header><strong>Photo · Palette</strong><div class="row" style="gap:6px;align-items:center"><span class="handle">⋮⋮</span></div></header>
+        <header><strong>Photo · Palette</strong><div class="row" style="gap:6px;align-items:center"><button type="button" class="icon collapse" aria-label="Replier/déplier ce bloc" aria-controls="blk-photo" aria-expanded="true" title="Replier">▾</button><span class="handle">⋮⋮</span></div></header>
         <div class="photo-drop">
           <div class="row">
             <input id="imgInput" type="file" accept="image/*" class="grow" />
@@ -131,9 +116,9 @@
         <div class="palette" id="palette"></div>
       </section>
 
-      <!-- PRÉFÉRENCES -->
+      <!-- PREFERENCES -->
       <section class="block" id="blk-style" draggable="true">
-        <header><strong>Préférences de style</strong><div class="row" style="gap:6px;align-items:center"><span class="handle">⋮⋮</span></div></header>
+        <header><strong>Préférences de style</strong><div class="row" style="gap:6px;align-items:center"><button type="button" class="icon collapse" aria-label="Replier/déplier ce bloc" aria-controls="blk-style" aria-expanded="true" title="Replier">▾</button><span class="handle">⋮⋮</span></div></header>
 
         <div class="pref-grid">
           <div class="pref-item" id="pref-scene">
@@ -214,11 +199,19 @@
         </div>
       </section>
 
+      <!-- FAVORIS -->
+      <section class="block" id="blk-favs" draggable="true">
+        <header><strong>Galerie des favoris</strong><div class="row" style="gap:6px;align-items:center"><button type="button" class="icon collapse" aria-label="Replier/déplier ce bloc" aria-controls="blk-favs" aria-expanded="true" title="Replier">▾</button><span class="handle">⋮⋮</span></div></header>
+        <div id="favList" class="fav-list"></div>
+        <div id="favEmpty" class="empty muted">Aucun favori pour le moment.</div>
+        <div class="row" style="justify-content:flex-end"><button class="ghost" id="btnClearFavs">Vider la galerie</button></div>
+      </section>
+
       <!-- TENUE -->
       <section class="block" id="blk-tenue" draggable="true">
-        <header><strong>Tenue (Haut / Ceinture / Bas)</strong><div class="row" style="gap:6px;align-items:center"><span class="handle">⋮⋮</span></div></header>
+        <header><strong>Tenue (Haut / Ceinture / Bas)</strong><div class="row" style="gap:6px;align-items:center"><button type="button" class="icon collapse" aria-label="Replier/déplier ce bloc" aria-controls="blk-tenue" aria-expanded="true" title="Replier">▾</button><span class="handle">⋮⋮</span></div></header>
         <div class="outfit">
-          <div class="tile" id="tileTop">
+          <div class="tile active" id="tileTop">
             <div class="zone">Haut</div>
             <div id="topSwatch" class="swatch"></div>
             <div class="hexline">
@@ -262,45 +255,58 @@
           <button class="ghost" id="btnFaceContrast" title="Aider à détacher le visage">Visage plus détaché</button>
           <button class="ghost" id="btnShare">Partager</button>
           <button class="primary" id="btnSuggest">Proposer des accords</button>
-          <button class="ghost" id="btnToMannequin">→ Mannequin</button>
           <button class="ghost" id="btnReset">Réinitialiser</button>
         </div>
       </section>
 
       <!-- PROPOSITIONS -->
       <section class="block" id="blk-propositions" draggable="true">
-        <header><strong id="propsTitle">Propositions d’accord</strong><div class="row" style="gap:6px;align-items:center"><span class="handle">⋮⋮</span></div></header>
+        <header><strong id="propsTitle">Propositions d’accord</strong><div class="row" style="gap:6px;align-items:center"><button type="button" class="icon collapse" aria-label="Replier/déplier ce bloc" aria-controls="blk-propositions" aria-expanded="true" title="Replier">▾</button><span class="handle">⋮⋮</span></div></header>
         <div id="props" class="props"></div>
       </section>
 
-      <!-- MANNEQUIN -->
+      <!-- MANNEQUIN – tout inline (zones + contour) -->
       <section class="block" id="blk-mannequin" draggable="true">
-        <header><strong>Mannequin</strong><div class="row" style="gap:6px;align-items:center"><span class="handle">⋮⋮</span></div></header>
+        <header><strong>Mannequin</strong><div class="row" style="gap:6px;align-items:center"><button type="button" class="icon collapse" aria-label="Replier/déplier ce bloc" aria-controls="blk-mannequin" aria-expanded="true" title="Replier">▾</button><span class="handle">⋮⋮</span></div></header>
 
         <div class="man-cta">
           <button id="btnHeart" class="icon" data-on="false" title="Ajouter aux favoris">♡</button>
         </div>
 
         <div class="man-wrap">
+          <!-- Zones colorées + contour inline -->
           <svg id="manSvg" class="man" viewBox="0 0 180 320" xmlns="http://www.w3.org/2000/svg" aria-label="Mannequin">
-            <g class="sil">
-              <circle id="head" cx="90" cy="36" r="18" fill="#E8C7A8" />
-              <rect id="arms" x="20" y="74" width="140" height="18" rx="8" fill="#6B7280"/>
-              <rect id="torso" x="62" y="60" width="56" height="78" rx="10" fill="#6B7280"/>
-              <rect id="belt" x="54" y="142" width="72" height="12" rx="6" fill="#3F3F46"/>
-              <rect id="legs" x="66" y="158" width="48" height="130" rx="10" fill="#0F172A"/>
+            <!-- tête -->
+            <circle id="head" cx="90" cy="36" r="18" fill="#E8C7A8"/>
+            <!-- HAUt = buste + bras -->
+            <g id="topZone" fill="#6B7280">
+              <rect x="30" y="72" width="22" height="96" rx="11"/>
+              <rect x="60" y="66" width="60" height="102" rx="14"/>
+              <rect x="128" y="72" width="22" height="96" rx="11"/>
+            </g>
+            <!-- CEINTURE -->
+            <rect id="beltZone" x="54" y="170" width="72" height="12" rx="6" fill="#3F3F46"/>
+            <!-- BAS = jambes -->
+            <g id="bottomZone" fill="#0F172A">
+              <rect x="62" y="186" width="22" height="122" rx="10"/>
+              <rect x="96" y="186" width="22" height="122" rx="10"/>
+            </g>
+
+            <!-- CONTOUR inline (effet pictogramme WC) -->
+            <g id="outline" fill="none" stroke="#ffffff" stroke-width="1.5"
+               stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke">
+              <circle cx="90" cy="36" r="18"/>
+              <rect x="30" y="72" width="22" height="96" rx="11"/>
+              <rect x="60" y="66" width="60" height="102" rx="14"/>
+              <rect x="128" y="72" width="22" height="96" rx="11"/>
+              <rect x="54" y="170" width="72" height="12" rx="6"/>
+              <rect x="62" y="186" width="22" height="122" rx="10"/>
+              <rect x="96" y="186" width="22" height="122" rx="10"/>
             </g>
           </svg>
+
           <span class="pill" id="styleBadge">Scène: Casual • Harmonie: Monochromie</span>
         </div>
-      </section>
-
-      <!-- FAVORIS -->
-      <section class="block" id="blk-favs" draggable="true">
-        <header><strong>Galerie des favoris</strong><div class="row" style="gap:6px;align-items:center"><span class="handle">⋮⋮</span></div></header>
-        <div id="favList" class="fav-list"></div>
-        <div id="favEmpty" class="empty muted">Aucun favori pour le moment.</div>
-        <div class="row" style="justify-content:flex-end"><button class="ghost" id="btnClearFavs">Vider la galerie</button></div>
       </section>
 
     </div>
@@ -321,7 +327,48 @@ function luminance(hex){ const {r,g,b}=hexToRgb(hex); return 0.2126*r + 0.7152*g
 const getHsl = (hex)=>{ const {r,g,b}=hexToRgb(hex); return rgbToHsl(r,g,b); }
 const hueDist = (a,b)=>{ let d=Math.abs(a-b)%360; return d>180?360-d:d; }
 
-/* ==== Harmonies + Contexte ==== */
+/* ==== Noms FR (approx) ==== */
+function approxColorNameFR(hex){
+  const {h,s,l}=getHsl(hex);
+  if(s<0.10){
+    if(l<0.10) return 'noir profond';
+    if(l<0.18) return 'noir';
+    if(l<0.30) return 'gris anthracite';
+    if(l<0.50) return 'gris moyen';
+    if(l<0.70) return 'gris clair';
+    return 'blanc cassé';
+  }
+  if(l<0.28 && h>205 && h<235) return 'bleu marine';
+  if(l<0.28 && (h>330 || h<15)) return 'bordeaux';
+  if(l<0.35 && h>=170 && h<=200) return 'bleu pétrole';
+  if(s<0.30 && h>=65 && h<=95) return 'kaki/olive';
+  if(s<0.35 && h>=25 && h<=45 && l>0.45) return 'camel';
+  if(s>0.55 && h>=10 && h<=25 && l>0.45) return 'terracotta';
+
+  let base='couleur';
+  if(h<15||h>=350) base='rouge';
+  else if(h<35) base='orange';
+  else if(h<55) base='jaune';
+  else if(h<95) base='vert';
+  else if(h<150) base='vert';
+  else if(h<190) base='turquoise';
+  else if(h<230) base='bleu';
+  else if(h<255) base='indigo';
+  else if(h<290) base='violet';
+  else if(h<330) base='magenta';
+  else base='rose';
+
+  let mod='';
+  if(l<0.28) mod='sombre';
+  else if(l<0.42) mod='foncé';
+  else if(l>0.82) mod='pastel';
+  else if(l>0.68) mod='clair';
+  if(base==='bleu' && mod==='foncé') return 'bleu nuit';
+  if(base==='vert' && mod==='foncé' && s>0.5) return 'vert sapin';
+  return (mod ? `${base} ${mod}` : base);
+}
+
+/* ==== Harmonies + contexte ==== */
 function harmonySupports(baseHex, mode){
   const {r,g,b}=hexToRgb(baseHex); let {h,s,l}=rgbToHsl(r,g,b);
   s = clamp(s, .15, .92); l = clamp(l, .18, .84);
@@ -397,8 +444,10 @@ function tuneForAccents(hex){
   return hex;
 }
 
-/* ==== État & Éléments ==== */
-const ORDER_KEY='stylist_order', FAVS_KEY='stylist_favs', COLLAPSE_KEY='stylist_collapsed_v2', PREFS_KEY='stylist_prefs_v19';
+/* ==== État & éléments ==== */
+const ORDER_KEY='stylist_order', FAVS_KEY='stylist_favs', PREFS_KEY='stylist_prefs_v21';
+let booting=true;
+
 const state={
   activeZone:'top',
   top:'#6B7280', mid:'#3F3F46', bot:'#0F172A',
@@ -408,16 +457,17 @@ const state={
   favorites:[],
   lastNeutral:null,
   genSeed: Date.now(),
-  paletteFresh:false
+  paletteFresh:false,
+  lastProposals:[],
+  styleColors:null
 };
+
 const el={
   board:document.getElementById('board'),
-  // photo
   imgInput:document.getElementById('imgInput'),
   imgCanvas:document.getElementById('imgCanvas'),
   palette:document.getElementById('palette'),
   btnClearPhoto:document.getElementById('btnClearPhoto'),
-  // prefs
   scene:document.getElementById('scene'),
   harmony:document.getElementById('harmony'),
   season:document.getElementById('season'),
@@ -429,7 +479,6 @@ const el={
   prefNeutralBelt:document.getElementById('prefNeutralBelt'),
   refBadge:document.getElementById('refBadge'),
   neutralPanel:document.getElementById('neutralPanel'),
-  // tenue
   topPicker:document.getElementById('topPicker'), midPicker:document.getElementById('midPicker'), botPicker:document.getElementById('botPicker'),
   topSwatch:document.getElementById('topSwatch'), midSwatch:document.getElementById('midSwatch'), botSwatch:document.getElementById('botSwatch'),
   topHex:document.getElementById('topHex'), midHex:document.getElementById('midHex'), botHex:document.getElementById('botHex'),
@@ -438,22 +487,18 @@ const el={
   paletteSync:document.getElementById('paletteSync'),
   btnSuggest:document.getElementById('btnSuggest'), btnReset:document.getElementById('btnReset'),
   btnShare:document.getElementById('btnShare'),
-  btnToMannequin:document.getElementById('btnToMannequin'),
   btnFaceContrast:document.getElementById('btnFaceContrast'),
   tileTop:document.getElementById('tileTop'),
   tileMid:document.getElementById('tileMid'),
   tileBot:document.getElementById('tileBot'),
-  // props
   props:document.getElementById('props'), propsTitle:document.getElementById('propsTitle'),
-  // mannequin
   manSvg:document.getElementById('manSvg'),
   styleBadge:document.getElementById('styleBadge'),
   btnHeart:document.getElementById('btnHeart'),
-  // favs
   favList:document.getElementById('favList'), favEmpty:document.getElementById('favEmpty'), btnClearFavs:document.getElementById('btnClearFavs')
 };
 
-/* ==== UI Tenue ==== */
+/* ==== UI tenue ==== */
 const zoneLabel=(z=state.activeZone)=> z==='top'?'Haut':z==='mid'?'Ceinture':'Bas';
 function refreshOutfit(){
   el.topPicker.value=state.top; el.midPicker.value=state.mid; el.botPicker.value=state.bot;
@@ -468,33 +513,25 @@ function refreshOutfit(){
   el.activeZoneBadge.textContent='Zone active : '+zoneLabel();
   updateMannequin(); updateStyleBadge(); updatePropsTitle(); updateHeartButton();
 }
-function setActive(zone){ state.activeZone=zone; markPaletteStale(); renderNeutrals(); refreshOutfit(); }
+function setActive(zone){ state.activeZone=zone; markPaletteStale(); renderNeutrals(); refreshOutfit(); updateShareHash(); }
 function normalizeHex(h){
-  if(!h) return null;
-  h = h.trim().toUpperCase();
+  if(!h) return null; h=h.trim().toUpperCase();
   if(/^#[0-9A-F]{6}$/.test(h)) return h;
   if(/^[0-9A-F]{6}$/.test(h)) return '#'+h;
   return null;
 }
-function setZoneColor(zone, hex){ 
-  hex = normalizeHex(hex);
-  if(!hex) return;
-  state[zone]=hex; markPaletteStale(); refreshOutfit(); 
+function setZoneColor(zone, hex){
+  const v=normalizeHex(hex); if(!v) return;
+  state[zone]=v; markPaletteStale(); refreshOutfit(); updateShareHash();
 }
 
-/* ==== Badge Palette ==== */
+/* ==== Palette de style : badge ==== */
 function updatePaletteBadge(){
-  if(!el.paletteSync) return;
-  if(state.paletteFresh){
-    el.paletteSync.textContent='LIVE';
-    el.paletteSync.classList.remove('stale');
-  }else{
-    el.paletteSync.textContent='ancienne';
-    el.paletteSync.classList.add('stale');
-  }
+  if(state.paletteFresh){ el.paletteSync.textContent='LIVE'; el.paletteSync.classList.remove('stale'); }
+  else { el.paletteSync.textContent='ancienne'; el.paletteSync.classList.add('stale'); }
 }
-function markPaletteStale(){ state.paletteFresh=false; updatePaletteBadge(); el.stylePalette.classList.add('stale'); }
-function markPaletteLive(){ state.paletteFresh=true; updatePaletteBadge(); el.stylePalette.classList.remove('stale'); }
+function markPaletteStale(){ state.paletteFresh=false; updatePaletteBadge(); }
+function markPaletteLive(){ state.paletteFresh=true; updatePaletteBadge(); }
 
 /* ==== Neutres ==== */
 const neutralSets={
@@ -514,7 +551,6 @@ function neutralFilterByPreferences(hex){
 }
 function renderNeutrals(){
   const {scene, season, occasion} = state;
-
   const scenePick = scene==='soiree'   ? [...neutralSets.sombres, ...neutralSets.ivoire]
                   : scene==='exterieur'? [neutralSets.universels[0], {hex:'#0EA5E9',name:'Bleu clair'}, {hex:'#10B981',name:'Vert doux'}]
                   : scene==='bureau'   ? [{hex:'#111827',name:'Noir pro'},{hex:'#4B5563',name:'Gris ardoise'},{hex:'#D1D5DB',name:'Gris perle'}]
@@ -534,15 +570,12 @@ function renderNeutrals(){
 
   let all=[...scenePick, ...seasonPick, ...occPick, ...neutralSets.universels];
   all = all.filter(n=>neutralFilterByPreferences(n.hex));
-
   if(state.prefs.intensity==='audacieux'){
     const enrich = [{hex:'#0b0b0b',name:'Noir profond+'},{hex:'#f3f4f6',name:'Blanc doux+'}];
     all = [...all, ...enrich];
   }
-
   const uniq=[]; const seen=new Set();
   all.forEach(n=>{const k=String(n.hex).toUpperCase(); if(!seen.has(k)){ seen.add(k); uniq.push({hex:k,name:n.name}); }});
-
   el.neutralPanel.innerHTML='';
   uniq.forEach(n=>{
     const d=document.createElement('button');
@@ -554,7 +587,7 @@ function renderNeutrals(){
   });
 }
 
-/* ==== Préférences persistantes ==== */
+/* ==== Prefs persistantes ==== */
 function loadPrefs(){ try{ const raw=localStorage.getItem(PREFS_KEY); if(raw){ const p=JSON.parse(raw); Object.assign(state,p); }}catch{} }
 function savePrefs(){ localStorage.setItem(PREFS_KEY, JSON.stringify(state)); }
 function applyPrefsToUI(){
@@ -567,20 +600,17 @@ function applyPrefsToUI(){
   el.prefNeutralBelt.checked = !!state.prefs.preferNeutralBelt;
 }
 
-/* ==== Segmented helpers (plus de highlight parent) ==== */
+/* ==== Segments ==== */
 function setSeg(seg, val){ seg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.val===val))); }
-function wireSeg(seg, cb){ seg.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ setSeg(seg, b.dataset.val); cb(b.dataset.val); savePrefs(); })); }
-function updatePrefHighlights(){
-  // seulement état disabled/enabled des accents
-  el.accentsSeg.dataset.disabled = state.prefs.autoAccents ? 'true' : 'false';
-}
+function wireSeg(seg, cb){ seg.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ setSeg(seg, b.dataset.val); cb(b.dataset.val); savePrefs(); updateShareHash(); })); }
+function updatePrefHighlights(){ el.accentsSeg.dataset.disabled = state.prefs.autoAccents ? 'true' : 'false'; }
 
 /* ==== RNG & Propositions ==== */
 function mulberry32(a){ return function(){ let t=a+=0x6D2B79F5; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; } }
 function shuffle(arr, rng){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(rng()* (i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function uniqTrips(arr){ const seen=new Set(), out=[]; for(const t of arr){ const k=t.map(c=>c.toUpperCase()).join('|'); if(!seen.has(k)){ seen.add(k); out.push(t); } } return out; }
 
-/* ==== Génération des propositions ==== */
+/* ==== Génération ==== */
 function generateProposals(){
   const base=state[state.activeZone], scene=state.scene, mode=state.harmony;
   const rng = mulberry32(++state.genSeed);
@@ -678,7 +708,7 @@ function scoreTriplet(tri){
   return score;
 }
 
-/* ==== Propositions + titre ==== */
+/* ==== Propositions ==== */
 function renderProposals(items){
   el.props.innerHTML='';
   items.forEach(({tri})=>{
@@ -689,19 +719,28 @@ function renderProposals(items){
     const actions=document.createElement('div'); actions.className='actions';
     const btnApply=document.createElement('button'); btnApply.className='icon'; btnApply.title='Appliquer'; btnApply.textContent='✅';
     btnApply.addEventListener('click',()=>applyTriplet(tri));
-    const btnFav=document.createElement('button'); btnFav.className='icon'; btnFav.title='Ajouter aux favoris'; 
+    const btnFav=document.createElement('button'); btnFav.className='icon'; btnFav.title='Ajouter aux favoris';
     setStarVisual(btnFav, tri);
-    btnFav.addEventListener('click',()=>{ toggleFavorite(tri); setStarVisual(btnFav, tri); });
+    btnFav.addEventListener('click',()=>{ toggleFavorite(tri); setStarVisual(btnFav, tri); updateShareHash(); });
     const btnDl=document.createElement('button'); btnDl.className='icon'; btnDl.title='Exporter PNG'; btnDl.textContent='⬇️';
     btnDl.addEventListener('click',()=>exportLook(tri));
     actions.append(btnApply,btnFav,btnDl);
     row.append(bars, actions);
     el.props.appendChild(row);
   });
+  state.lastProposals = items.map(it=>it.tri);
   updatePropsTitle();
 }
 
-/* Visuel étoile rempli/creux + MAJ globale après changements */
+/* Export PNG simple */
+function exportLook(tri){
+  const cvs=document.createElement('canvas'); cvs.width=480; cvs.height=120;
+  const ctx=cvs.getContext('2d');
+  tri.forEach((c,i)=>{ ctx.fillStyle=c; ctx.fillRect(i*160,0,160,120); ctx.strokeStyle='rgba(255,255,255,.2)'; ctx.strokeRect(i*160+.5,.5,159,119); });
+  const a=document.createElement('a'); a.download=`accord_${tri.map(x=>x.replace('#','')).join('_')}.png`; a.href=cvs.toDataURL('image/png'); a.click();
+}
+
+/* ==== Favoris ==== */
 function setStarVisual(btn, tri){
   const on=isFav(tri);
   btn.textContent = on ? '★' : '⭐';
@@ -716,7 +755,6 @@ function refreshProposalStars(){
     btn.title = on ? 'Retirer des favoris' : 'Ajouter aux favoris';
   });
 }
-
 function labelScene(v){ return ({casual:'Casual',bureau:'Bureau',soiree:'Soirée',exterieur:'Extérieur'})[v]||v; }
 function labelHarmony(v){ return ({mono:'Monochromie',analog:'Analogues',comp:'Complémentaire',split:'Split-complémentaire',triad:'Triadique',tetrad:'Tétradique'})[v]||v; }
 function labelSeason(v){ return ({none:'Indifférent',printemps:'Printemps',ete:'Été',automne:'Automne',hiver:'Hiver'})[v]||v; }
@@ -732,10 +770,10 @@ function prefsSummary(){
 function updatePropsTitle(){
   const ctx = `Scène: ${labelScene(state.scene)} • Harmonie: ${labelHarmony(state.harmony)} • Saison: ${labelSeason(state.season)} • Occasion: ${labelOccasion(state.occasion)}`;
   const pref = prefsSummary();
-  el.propsTitle.textContent = `Propositions d’accord (${ctx} • ${pref})`;
+  document.getElementById('propsTitle').textContent = `Propositions d’accord (${ctx} • ${pref})`;
 }
 
-/* ==== Palette de style (rafraîchie UNIQUEMENT sur demande) ==== */
+/* ==== Palette de style (snapshot) ==== */
 function buildStylePalette(){
   const base=state[state.activeZone];
   let cols=[base, ...harmonySupports(base, state.harmony)];
@@ -744,37 +782,36 @@ function buildStylePalette(){
              .map(c=> occasionAdjust(c, state.occasion))
              .map(c=> state.prefs.intensity==='audacieux' ? adjustSL(c,+0.10,0) : adjustSL(c,-0.04,0))
              .map(c=> tuneForAccents(c));
-
   let extraNeutrals = state.scene==='soiree' ? ['#0B0B0B','#27272A','#F4F4F5']
                    : state.scene==='bureau'  ? ['#111827','#4B5563','#D1D5DB']
                    : ['#0F172A','#374151','#9CA3AF'];
   if(state.activeZone==='mid' && state.prefs.preferNeutralBelt) extraNeutrals = extraNeutrals.filter(h=>getHsl(h).s<0.28);
   if(state.activeZone==='bot' && state.prefs.preferDarkBottoms) extraNeutrals = extraNeutrals.filter(h=>getHsl(h).l<0.45);
-
   cols = [...cols, ...extraNeutrals];
   const seen=new Set(); cols = cols.filter(h=>{const k=h.toUpperCase(); if(seen.has(k)) return false; seen.add(k); return true;}).slice(0,24);
   return cols;
 }
-function renderStylePalette(){
-  const colors = buildStylePalette();
-  el.stylePalette.innerHTML='';
-  colors.forEach(hex=>{
+function renderStylePalette(colors){
+  const cols = colors && colors.length ? colors : (state.styleColors && state.styleColors.length ? state.styleColors : buildStylePalette());
+  const host=document.getElementById('stylePalette');
+  host.innerHTML='';
+  cols.forEach(hex=>{
     const chip=document.createElement('button'); chip.className='chip'; chip.style.background=hex; chip.title=hex.toUpperCase();
     chip.addEventListener('click',()=>{ setZoneColor(state.activeZone, hex); });
-    el.stylePalette.appendChild(chip);
+    host.appendChild(chip);
   });
+  state.styleColors=[...cols];
   markPaletteLive();
 }
 
-/* ==== Mannequin ==== */
+/* ==== Mannequin : appliquer couleurs ==== */
 function updateMannequin(){
-  document.getElementById('arms').setAttribute('fill', state.top);
-  document.getElementById('torso').setAttribute('fill', state.top);
-  document.getElementById('belt').setAttribute('fill', state.mid);
-  document.getElementById('legs').setAttribute('fill', state.bot);
+  document.getElementById('topZone').setAttribute('fill', state.top);
+  document.getElementById('beltZone').setAttribute('fill', state.mid);
+  document.getElementById('bottomZone').setAttribute('fill', state.bot);
 }
 function updateStyleBadge(){
-  el.styleBadge.textContent = `Scène: ${labelScene(state.scene)} • Harmonie: ${labelHarmony(state.harmony)}`;
+  document.getElementById('styleBadge').textContent = `Scène: ${labelScene(state.scene)} • Harmonie: ${labelHarmony(state.harmony)}`;
 }
 
 /* ==== Favoris ==== */
@@ -782,22 +819,24 @@ function loadFavorites(){ try{ const raw=localStorage.getItem(FAVS_KEY); state.f
 function saveFavorites(){ localStorage.setItem(FAVS_KEY, JSON.stringify(state.favorites)); }
 const favKey = tri => tri.map(c=>c.toUpperCase()).join('|');
 function isFav(tri){ return state.favorites.some(f=>favKey(f)===favKey(tri)); }
-function addFavorite(tri){ const key=favKey(tri); if(state.favorites.some(f=>favKey(f)===key)) return; state.favorites.unshift(tri); saveFavorites(); renderFavorites(); updateHeartButton(); refreshProposalStars(); }
-function removeFavoriteByKey(key){ state.favorites = state.favorites.filter(f=>favKey(f)!==key); saveFavorites(); renderFavorites(); updateHeartButton(); refreshProposalStars(); }
+function addFavorite(tri){ const key=favKey(tri); if(state.favorites.some(f=>favKey(f)===key)) return; state.favorites.unshift(tri); saveFavorites(); renderFavorites(); updateHeartButton(); refreshProposalStars(); updateShareHash(); }
+function removeFavoriteByKey(key){ state.favorites = state.favorites.filter(f=>favKey(f)!==key); saveFavorites(); renderFavorites(); updateHeartButton(); refreshProposalStars(); updateShareHash(); }
 function toggleFavorite(tri){ const key=favKey(tri); if(state.favorites.some(f=>favKey(f)===key)) removeFavoriteByKey(key); else addFavorite(tri); }
 function toggleCurrentFavorite(){ toggleFavorite([state.top,state.mid,state.bot]); }
 function updateHeartButton(){
   const tri=[state.top,state.mid,state.bot];
   const on=isFav(tri);
-  el.btnHeart.dataset.on = on ? 'true' : 'false';
-  el.btnHeart.textContent = on ? '❤' : '♡';
-  el.btnHeart.title = on ? 'Retirer des favoris' : 'Ajouter aux favoris';
+  const btn=document.getElementById('btnHeart');
+  btn.dataset.on = on ? 'true' : 'false';
+  btn.textContent = on ? '❤' : '♡';
+  btn.title = on ? 'Retirer des favoris' : 'Ajouter aux favoris';
 }
-function clearFavorites(){ state.favorites=[]; saveFavorites(); renderFavorites(); updateHeartButton(); refreshProposalStars(); }
+function clearFavorites(){ state.favorites=[]; saveFavorites(); renderFavorites(); updateHeartButton(); refreshProposalStars(); updateShareHash(); }
 function renderFavorites(){
-  const list=el.favList; list.innerHTML='';
-  if(!state.favorites.length){ el.favEmpty.classList.remove('hidden'); return; }
-  el.favEmpty.classList.add('hidden');
+  const list=document.getElementById('favList'); list.innerHTML='';
+  const empty=document.getElementById('favEmpty');
+  if(!state.favorites.length){ empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
   state.favorites.forEach(tri=>{
     const key=favKey(tri);
     const item=document.createElement('div'); item.className='prop-row';
@@ -811,56 +850,60 @@ function renderFavorites(){
     item.append(bars,actions); actions.append(btnUse,btnDel); list.appendChild(item);
   });
 }
-document.getElementById('btnClearFavs').addEventListener('click', clearFavorites);
 
-/* ==== Partage / Export ==== */
+/* ==== Partage ==== */
+function snapshotData(){
+  return {
+    colors:{top:state.top,mid:state.mid,bot:state.bot},
+    ctx:{scene:state.scene,harmony:state.harmony,season:state.season,occasion:state.occasion,activeZone:state.activeZone},
+    prefs:state.prefs,
+    locks:state.locks,
+    paletteFresh:state.paletteFresh,
+    genSeed: state.genSeed,
+    lastNeutral: state.lastNeutral,
+    lastProposals: state.lastProposals||[],
+    styleColors: state.styleColors||[],
+    favorites: state.favorites||[]
+  };
+}
 function shareState(){
-  const data={ colors:{top:state.top,mid:state.mid,bot:state.bot},
-    ctx:{scene:state.scene,harmony:state.harmony,season:state.season,occasion:state.occasion},
-    prefs:state.prefs, locks:state.locks, paletteFresh:state.paletteFresh };
+  const data=snapshotData();
   const hash='state='+encodeURIComponent(btoa(JSON.stringify(data)));
   const url=location.origin+location.pathname+'#'+hash;
   navigator.clipboard.writeText(url).then(()=>alert('Lien copié dans le presse-papiers !'),()=>prompt('Copie manuelle :', url));
 }
 function updateShareHash(){
-  const data={ colors:{top:state.top,mid:state.mid,bot:state.bot},
-    ctx:{scene:state.scene,harmony:state.harmony,season:state.season,occasion:state.occasion},
-    prefs:state.prefs, locks:state.locks, paletteFresh:state.paletteFresh };
+  if(booting) return;
+  const data=snapshotData();
   const hash='state='+encodeURIComponent(btoa(JSON.stringify(data)));
   history.replaceState(null,'','#'+hash);
 }
 function readHash(){
-  if(!location.hash.startsWith('#state=')) return;
+  if(!location.hash.startsWith('#state=')) return false;
   try{
     const raw=decodeURIComponent(location.hash.slice(7)); const obj=JSON.parse(atob(raw));
     if(obj.colors){ state.top=obj.colors.top; state.mid=obj.colors.mid; state.bot=obj.colors.bot; }
-    if(obj.ctx){ Object.assign(state,obj.ctx); }
+    if(obj.ctx){ state.scene=obj.ctx.scene; state.harmony=obj.ctx.harmony; state.season=obj.ctx.season; state.occasion=obj.ctx.occasion; state.activeZone=obj.ctx.activeZone||'top'; }
     if(obj.prefs){ Object.assign(state.prefs,obj.prefs); }
     if(obj.locks){ state.locks=obj.locks; }
     if(typeof obj.paletteFresh==='boolean'){ state.paletteFresh=obj.paletteFresh; }
-  }catch(e){ console.warn('Hash invalide'); }
+    if(typeof obj.genSeed==='number'){ state.genSeed=obj.genSeed; }
+    if(obj.lastNeutral){ state.lastNeutral=obj.lastNeutral; }
+    if(Array.isArray(obj.lastProposals)){ state.lastProposals=obj.lastProposals; }
+    if(Array.isArray(obj.styleColors)){ state.styleColors=obj.styleColors; }
+    if(Array.isArray(obj.favorites)){ state.favorites=obj.favorites; }
+    return true;
+  }catch(e){ console.warn('Hash invalide', e); return false; }
 }
 
-/* ==== Apply / Export ==== */
+/* ==== Apply ==== */
 function applyTriplet(tri){
   setZoneColor('top',tri[0]); setZoneColor('mid',tri[1]); setZoneColor('bot',tri[2]);
-}
-async function exportLook(tri){
-  const svg = document.getElementById('manSvg').outerHTML
-    .replace(/#6B7280/g, tri[0]).replace(/#3F3F46/g, tri[1]).replace(/#0F172A/g, tri[2]);
-  const img = new Image(); img.src = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
-  await img.decode();
-  const c=document.createElement('canvas'); c.width=520; c.height=360;
-  const ctx=c.getContext('2d'); ctx.fillStyle="#0b0e16"; ctx.fillRect(0,0,c.width,c.height);
-  ctx.drawImage(img, 40, 20, 220, 300);
-  [tri[0],tri[1],tri[2]].forEach((col,i)=>{ ctx.fillStyle=col; ctx.fillRect(300, 40+i*90, 180, 60); });
-  ctx.fillStyle="#fff"; ctx.font="14px Inter,Arial"; ctx.fillText(tri[0], 300, 115); ctx.fillText(tri[1], 300, 205); ctx.fillText(tri[2], 300, 295);
-  const a=document.createElement('a'); a.download='tenue.png'; a.href=c.toDataURL('image/png'); a.click();
 }
 
 /* ==== Palette depuis photo ==== */
 async function extractPaletteFromImage(img,count=16){
-  const cvs=el.imgCanvas, ctx=cvs.getContext('2d',{willReadFrequently:true});
+  const cvs=document.getElementById('imgCanvas'), ctx=cvs.getContext('2d',{willReadFrequently:true});
   const maxDim=440; const scale=Math.min(maxDim/img.width, maxDim/img.height, 1);
   cvs.width=Math.max(1,Math.round(img.width*scale)); cvs.height=Math.max(1,Math.round(img.height*scale));
   ctx.drawImage(img,0,0,cvs.width,cvs.height);
@@ -878,20 +921,23 @@ async function extractPaletteFromImage(img,count=16){
   return pick.map(k=>{ const r=((k>>10)&31)<<3, g=((k>>5)&31)<<3, b=(k&31)<<3; return rgbToHex(r,g,b); });
 }
 function renderPalette(colors){
-  el.palette.innerHTML='';
-  if(!colors?.length){ el.palette.innerHTML='<small class="hint">Aucune couleur détectée.</small>'; return; }
+  const host=document.getElementById('palette');
+  host.innerHTML='';
+  if(!colors?.length){ host.innerHTML='<small class="hint">Aucune couleur détectée.</small>'; return; }
   colors.forEach(hex=>{
     const chip=document.createElement('button'); chip.className='chip'; chip.style.background=hex; chip.title=hex.toUpperCase();
     chip.addEventListener('click',()=>{ setZoneColor(state.activeZone, hex); });
-    el.palette.appendChild(chip);
+    host.appendChild(chip);
   });
 }
 function clearPhotoPalette(){
-  el.imgCanvas.width=0; el.imgCanvas.height=0; el.imgCanvas.classList.add('hidden');
-  el.palette.innerHTML=''; el.imgInput.value='';
+  const cvs=document.getElementById('imgCanvas');
+  cvs.width=0; cvs.height=0; cvs.classList.add('hidden');
+  document.getElementById('palette').innerHTML='';
+  document.getElementById('imgInput').value='';
 }
 
-/* ==== Drag & Drop ==== */
+/* ==== Drag & Drop & Repli ==== */
 (function enableDnD(){
   const board=el.board; let dragging=null;
   board.addEventListener('dragstart', e=>{ const blk=e.target.closest('.block'); if(!blk) return; dragging=blk; blk.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
@@ -918,21 +964,16 @@ function loadOrder(){
   }catch{}
 }
 
-/* ==== Repli / Dépli ==== */
 function getCollapsedSet(){
-  try { return new Set(JSON.parse(localStorage.getItem(COLLAPSE_KEY) || '[]')); }
+  try { return new Set(JSON.parse(localStorage.getItem('stylist_collapsed_v2') || '[]')); }
   catch { return new Set(); }
 }
-function saveCollapsedSet(set){
-  localStorage.setItem(COLLAPSE_KEY, JSON.stringify([...set]));
-}
+function saveCollapsedSet(set){ localStorage.setItem('stylist_collapsed_v2', JSON.stringify([...set])); }
 function installCollapsers(){
   const collapsed = getCollapsedSet();
-
   document.querySelectorAll('.block').forEach(blk=>{
     const header = blk.querySelector('header');
     if(!header) return;
-
     let btn = header.querySelector('button.collapse');
     if(!btn){
       btn = document.createElement('button');
@@ -940,28 +981,21 @@ function installCollapsers(){
       btn.className = 'icon collapse';
       btn.setAttribute('aria-label','Replier/déplier ce bloc');
       btn.setAttribute('aria-controls', blk.id);
-
       const handle = header.querySelector('.handle');
       const host   = handle ? handle.parentElement : header;
       host.insertBefore(btn, handle || host.firstChild);
-
       btn.addEventListener('mousedown', e=> e.stopPropagation());
-
       const toggle = ()=>{
         blk.classList.toggle('collapsed');
         const set=getCollapsedSet();
-        if(blk.classList.contains('collapsed')) set.add(blk.id);
-        else set.delete(blk.id);
-        saveCollapsedSet(set);
-        sync();
+        if(blk.classList.contains('collapsed')) set.add(blk.id); else set.delete(blk.id);
+        saveCollapsedSet(set); sync();
       };
       btn.addEventListener('click', toggle);
       btn.addEventListener('keydown', e=>{ if(e.key===' ' || e.key==='Enter'){ e.preventDefault(); toggle(); }});
       header.addEventListener('dblclick', toggle);
     }
-
     if(collapsed.has(blk.id)) blk.classList.add('collapsed');
-
     const sync = ()=>{
       const expanded = !blk.classList.contains('collapsed');
       btn.textContent = expanded ? '▾' : '▸';
@@ -970,6 +1004,12 @@ function installCollapsers(){
     };
     sync();
   });
+}
+
+/* ==== Copie 3 couleurs ==== */
+function buildColorsSnapshot(){
+  const tri=[ ['Haut',state.top], ['Ceinture',state.mid], ['Bas',state.bot] ];
+  return tri.map(([label,hex])=> `${label}: ${hex.toUpperCase()} – ${approxColorNameFR(hex)}`).join('\n');
 }
 
 /* ==== Events ==== */
@@ -982,51 +1022,53 @@ function installCollapsers(){
     setActive(['top','mid','bot'][i]);
   });
 });
-
 el.topPicker.addEventListener('input', e=>setZoneColor('top', e.target.value));
 el.midPicker.addEventListener('input', e=>setZoneColor('mid', e.target.value));
 el.botPicker.addEventListener('input', e=>setZoneColor('bot', e.target.value));
-
 el.topHex.addEventListener('change', e=>{ const v=normalizeHex(e.target.value); if(v){ setZoneColor('top', v); } else { e.target.value=state.top; }});
 el.midHex.addEventListener('change', e=>{ const v=normalizeHex(e.target.value); if(v){ setZoneColor('mid', v); } else { e.target.value=state.mid; }});
 el.botHex.addEventListener('change', e=>{ const v=normalizeHex(e.target.value); if(v){ setZoneColor('bot', v); } else { e.target.value=state.bot; }});
 document.querySelectorAll('button[data-copy]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
-    const zone=btn.getAttribute('data-copy');
-    const hex=state[zone].toUpperCase();
-    navigator.clipboard.writeText(hex).then(()=>{ btn.textContent='✅'; setTimeout(()=>btn.textContent='📋',800);});
+    const text=buildColorsSnapshot();
+    navigator.clipboard.writeText(text).then(()=>{
+      const old=btn.textContent; btn.textContent='✅'; setTimeout(()=>btn.textContent=old,900);
+    });
   });
 });
 
 ['scene','harmony','season','occasion'].forEach(id=>{
   document.getElementById(id).addEventListener('change', e=>{
-    state[id]=e.target.value; renderNeutrals(); updateStyleBadge(); updatePropsTitle(); markPaletteStale(); savePrefs(); updatePrefHighlights();
+    state[id]=e.target.value; renderNeutrals(); updateStyleBadge(); updatePropsTitle(); markPaletteStale(); savePrefs(); updatePrefHighlights(); updateShareHash();
   });
 });
+wireSeg(document.getElementById('intensitySeg'), v=>{ state.prefs.intensity=v; markPaletteStale(); renderNeutrals(); updatePrefHighlights(); });
+wireSeg(document.getElementById('accentsSeg'), v=>{ state.prefs.accents=parseInt(v,10); updatePrefHighlights(); });
+wireSeg(document.getElementById('accModeSeg'), v=>{ state.prefs.autoAccents = (v==='auto'); updatePrefHighlights(); });
 
-wireSeg(el.intensitySeg, v=>{ state.prefs.intensity=v; markPaletteStale(); renderNeutrals(); updatePrefHighlights(); });
-wireSeg(el.accentsSeg, v=>{ state.prefs.accents=parseInt(v,10); updatePrefHighlights(); });
-wireSeg(el.accModeSeg, v=>{ state.prefs.autoAccents = (v==='auto'); updatePrefHighlights(); });
+document.getElementById('prefDarkBot').addEventListener('change', ()=>{ state.prefs.preferDarkBottoms=document.getElementById('prefDarkBot').checked; savePrefs(); renderNeutrals(); markPaletteStale(); updateShareHash(); });
+document.getElementById('prefNeutralBelt').addEventListener('change', ()=>{ state.prefs.preferNeutralBelt=document.getElementById('prefNeutralBelt').checked; savePrefs(); renderNeutrals(); markPaletteStale(); updateShareHash(); });
 
-el.prefDarkBot.addEventListener('change', ()=>{ state.prefs.preferDarkBottoms=el.prefDarkBot.checked; savePrefs(); renderNeutrals(); markPaletteStale(); });
-el.prefNeutralBelt.addEventListener('change', ()=>{ state.prefs.preferNeutralBelt=el.prefNeutralBelt.checked; savePrefs(); renderNeutrals(); markPaletteStale(); });
-
-el.btnSuggest.addEventListener('click', ()=>{
+document.getElementById('btnSuggest').addEventListener('click', ()=>{
   const res=generateProposals();
   renderProposals(res);
-  renderStylePalette();
+  const sp = buildStylePalette();
+  state.styleColors = sp;
+  renderStylePalette(sp);
+  markPaletteLive();
   updateShareHash();
   refreshProposalStars();
 });
-el.btnReset.addEventListener('click', ()=>{
+document.getElementById('btnReset').addEventListener('click', ()=>{
   state.activeZone='top';
   state.top='#6B7280'; state.mid='#3F3F46'; state.bot='#0F172A';
   state.scene='casual'; state.harmony='mono'; state.season='none'; state.occasion='none';
   state.prefs={ preferDarkBottoms:true, preferNeutralBelt:false, intensity:'sobre', autoAccents:true, accents:1 };
-  refreshOutfit(); renderNeutrals(); el.stylePalette.innerHTML=''; markPaletteStale(); el.props.innerHTML=''; updateShareHash(); savePrefs(); updatePrefHighlights(); refreshProposalStars();
+  state.lastNeutral=null; state.lastProposals=[]; state.styleColors=null; state.paletteFresh=false;
+  refreshOutfit(); renderNeutrals(); document.getElementById('stylePalette').innerHTML=''; markPaletteStale(); document.getElementById('props').innerHTML=''; updateShareHash(); savePrefs(); updatePrefHighlights(); refreshProposalStars();
 });
-el.btnShare.addEventListener('click', shareState);
-el.btnFaceContrast.addEventListener('click', ()=>{
+document.getElementById('btnShare').addEventListener('click', shareState);
+document.getElementById('btnFaceContrast').addEventListener('click', ()=>{
   const {l}=getHsl(state.top);
   const scene=state.scene;
   const delta = scene==='bureau' ? 0.10 : scene==='soiree' ? 0.16 : 0.14;
@@ -1034,33 +1076,38 @@ el.btnFaceContrast.addEventListener('click', ()=>{
   const dl = (l<0.50) ? +delta : -delta;
   setZoneColor('top', adjustSL(state.top, ds, dl));
 });
-el.btnToMannequin.addEventListener('click', ()=>{ updateMannequin(); });
 
-el.btnHeart.addEventListener('click', toggleCurrentFavorite);
-
-/* Photo palette */
-el.imgInput.addEventListener('change', async e=>{
-  const file=e.target.files?.[0]; if(!file) return;
-  const img=new Image();
-  img.onload=async ()=>{ el.imgCanvas.classList.remove('hidden'); const cols=await extractPaletteFromImage(img,16); renderPalette(cols); };
-  img.onerror=()=>alert("Impossible de lire l'image.");
-  img.src=URL.createObjectURL(file);
-});
-el.btnClearPhoto.addEventListener('click', clearPhotoPalette);
+document.getElementById('btnClearFavs').addEventListener('click', clearFavorites);
+document.getElementById('btnHeart').addEventListener('click', toggleCurrentFavorite);
 
 /* ==== Init ==== */
 function init(){
-  readHash(); loadPrefs();
+  loadPrefs();
+  const hadHash = readHash();
+
   applyPrefsToUI();
-  loadFavorites(); renderFavorites();
   loadOrder();
+  loadFavorites(); renderFavorites();
   renderNeutrals();
   refreshOutfit();
-  markPaletteStale(); updatePaletteBadge();
-  updateShareHash();
   installCollapsers();
   updatePrefHighlights();
-  refreshProposalStars();
+  updatePaletteBadge();
+
+  if(state.styleColors && state.styleColors.length){
+    renderStylePalette(state.styleColors);
+  }else{
+    markPaletteStale();
+  }
+  if(state.lastProposals && state.lastProposals.length){
+    const items = state.lastProposals.map(tri=>({tri, score: scoreTriplet(tri)}));
+    renderProposals(items);
+  }
+
+  updateMannequin();  // tout est inline maintenant (aucun fetch)
+
+  booting=false;
+  if(!hadHash) updateShareHash();
 }
 init();
 </script>
