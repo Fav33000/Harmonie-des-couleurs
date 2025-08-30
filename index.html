@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Assistant Styliste – Harmonie des couleurs</title>
+<style>
+  :root{
+    --bg:#0d0f14; --panel:#151824; --muted:#8b93a7; --border:#23283a; --text:#e8ebf2; --brand:#6bc1ff;
+    --radius:18px; --gap:12px; --shadow:0 8px 24px rgba(0,0,0,.25);
+    --love:#ff3b5c;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:16px/1.25 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+  h1{font-size:1.2rem;margin:0 0 6px}
+  small,.hint,label{color:var(--muted)}
+  .wrap{max-width:1120px;margin:0 auto;padding:clamp(10px,3vw,20px)}
+  .board{display:grid;gap:var(--gap)}
+  @media(min-width:820px){ .board{grid-template-columns:1fr 1fr} }
+  .block{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+  .block header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .handle{font-size:.95rem;color:var(--muted);user-select:none}
+  .block[draggable="true"]{touch-action:none;cursor:grab}
+  .block.dragging{opacity:.6;outline:2px dashed var(--brand)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .col{display:grid;gap:10px}
+  .grow{flex:1}
+  button,select,input[type="color"],input[type="file"],input[type="number"],input[type="range"],input[type="text"]{
+    background:#1b2132;color:var(--text);border:1px solid var(--border);border-radius:12px;padding:.6rem .8rem
+  }
+  button{cursor:pointer;border:0;box-shadow:var(--shadow)}
+  button.ghost{background:transparent;border:1px solid var(--border);box-shadow:none}
+  button.primary{background:var(--brand);color:#091120}
+  button.icon{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px}
+  .pill{font-size:.78rem;padding:.2rem .55rem;border-radius:999px;border:1px solid var(--border);background:#111525;color:var(--muted)}
+  .muted{color:var(--muted)}
+  .hidden{display:none!important}
+
+  /* Segmented controls — entoure UNIQUEMENT le bouton actif */
+  .seg{display:flex;gap:6px;align-items:center;border:0;background:transparent;padding:2px}
+  .seg button{
+    border:1px solid transparent;background:transparent;border-radius:10px;padding:.45rem .7rem;transition:box-shadow .15s,border-color .15s,background .15s;
+  }
+  .seg button[aria-pressed="true"]{
+    border-color:var(--brand);
+    box-shadow:0 0 0 2px rgba(107,193,255,.35);
+    background:#0f1421;
+    color:#fff;
+  }
+  .seg[data-disabled="true"]{opacity:.55;pointer-events:none}
+
+  /* Palettes */
+  .photo-drop{border:1px dashed var(--border);border-radius:12px;padding:10px}
+  canvas{width:100%;max-height:50vh;border-radius:12px;background:#0a0d17}
+  .palette{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .palette.stale{opacity:.65;filter:saturate(.6)}
+  .chip{width:30px;height:30px;border-radius:7px;border:1px solid rgba(255,255,255,.15);position:relative;cursor:pointer}
+
+  /* Tenue */
+  .outfit{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .tile{background:#0c0f18;padding:10px;border-radius:12px;border:1px solid var(--border);position:relative}
+  .tile.active{outline:2px solid var(--brand); outline-offset:3px; box-shadow:0 0 0 2px rgba(107,193,255,.15) inset;}
+  .swatch{height:48px;border-radius:10px;border:1px solid rgba(255,255,255,.18);cursor:pointer}
+  .hexline{display:flex;gap:8px;align-items:center;margin-top:6px}
+  .hexline input.hex{width:110px;text-transform:uppercase}
+  .zone{font-size:.85rem;color:var(--muted)}
+  .toolbar{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+
+  /* Propositions */
+  .props{display:grid;gap:10px}
+  .prop-row{display:grid;grid-template-columns:minmax(180px,1fr) auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--border);border-radius:12px;background:#0f1421}
+  .bars{display:grid;grid-template-columns:1fr 1fr 1fr;height:42px;border-radius:8px;overflow:hidden}
+  .bars div{border:1px solid rgba(255,255,255,.15);border-left:none}
+  .actions{display:flex;gap:8px;justify-content:flex-end}
+
+  /* Préférences de style */
+  .pref-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:900px){ .pref-grid{grid-template-columns:1fr} }
+  .pref-item{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#0f1421;border:1px solid var(--border);border-radius:12px;padding:10px}
+  .pref-item label{font-size:.95rem}
+  /* neutralise tout highlight parent */
+  .pref-item.active{background:#0f1421;border-color:var(--border);box-shadow:none}
+  .pref-item.active label{color:inherit}
+
+  /* Mannequin minimaliste */
+  .man-wrap{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;background:#0f1421;border:1px solid var(--border);border-radius:12px;padding:12px}
+  .man {width:220px;height:auto;margin:0 auto}
+  .man .sil *{ stroke:#fff; stroke-width:1.5; stroke-linejoin:round; stroke-linecap:round; }
+
+  /* Cœur sous le bandeau (x2) */
+  .man-cta{display:flex;justify-content:center;align-items:center;margin-top:-6px}
+  #btnHeart{
+    font-size:36px; width:80px; height:80px; border-radius:50%;
+    border:2px solid var(--border); background:#10172a; color:#fff;
+  }
+  #btnHeart[data-on="true"]{color:var(--love);border-color:var(--love)}
+  #btnHeart[data-on="false"]{color:#fff}
+  #btnToMannequin{white-space:nowrap}
+
+  /* Favoris */
+  .fav-list{display:grid;gap:10px}
+
+  /* Repli des blocs */
+  .block.collapsed { padding-bottom: 10px; gap: 0; }
+  .block.collapsed > :not(header) { display: none !important; }
+  .block.collapsed header .handle { opacity: .75; }
+  .block header .collapse {
+    width:34px;height:34px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;
+    font-size:16px;line-height:1;background:transparent;border:1px solid var(--border);box-shadow:none;color:var(--muted);margin-right:6px;
+  }
+  .block header .collapse:hover { color: var(--text); border-color: #2a3149; }
+  .block header .collapse:focus { outline: 2px solid var(--brand); outline-offset: 2px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Assistant Styliste – Harmonie des couleurs</h1>
+    <div id="board" class="board">
+
+      <!-- PHOTO -->
+      <section class="block" id="blk-photo" draggable="true">
+        <header><strong>Photo · Palette</strong><div class="row" style="gap:6px;align-items:center"><span class="handle">⋮⋮</span></div></header>
+        <div class="photo-drop">
+          <div class="row">
+            <input id="imgInput" type="file" accept="image/*" class="grow" />
+            <button id="btnClearPhoto" class="ghost">Effacer la photo</button>
+          </div>
+          <small class="hint">Clique une couleur de la palette pour l’appliquer à la <span class="pill">zone active</span>.</small>
+        </div>
+        <canvas id="imgCanvas" width="0" height="0" class="hidden" aria-label="aperçu"></canvas>
+        <div class="palette" id="palette"></div>
+      </section>
+
+      <!-- PRÉFÉRENCES -->
+      <section class="block" id="blk-style" draggable="true">
+        <header><strong>Préférences de style</strong><div class="row" style="gap:6px;align-items:center"><span class="handle">⋮⋮</span></div></header>
+
+        <div class="pref-grid">
+          <div class="pref-item" id="pref-scene">
+            <label>Scène</label>
+            <select id="scene">
+              <option value="casual">Casual</option>
+              <option value="bureau">Bureau</option>
+              <option value="soiree">Soirée</option>
+              <option value="exterieur">Extérieur</option>
+            </select>
+          </div>
+          <div class="pref-item" id="pref-harmony">
+            <label>Harmonie</label>
+            <select id="harmony">
+              <option value="mono">Monochromie</option>
+              <option value="analog">Analogues</option>
+              <option value="comp">Complémentaire</option>
+              <option value="split">Split-complémentaire</option>
+              <option value="triad">Triadique</option>
+              <option value="tetrad">Tétradique</option>
+            </select>
+          </div>
+          <div class="pref-item" id="pref-season">
+            <label>Saison</label>
+            <select id="season">
+              <option value="none">Indifférent</option>
+              <option value="printemps">Printemps</option>
+              <option value="ete">Été</option>
+              <option value="automne">Automne</option>
+              <option value="hiver">Hiver</option>
+            </select>
+          </div>
+          <div class="pref-item" id="pref-occasion">
+            <label>Occasion</label>
+            <select id="occasion">
+              <option value="none">Indifférent</option>
+              <option value="mariage_invite">Mariage (invité)</option>
+              <option value="entretien">Entretien professionnel</option>
+              <option value="gala">Gala</option>
+              <option value="bal">Bal</option>
+              <option value="soiree">Soirée</option>
+            </select>
+          </div>
+
+          <div class="pref-item" id="pref-intensity">
+            <label>Intensité</label>
+            <div class="seg" id="intensitySeg">
+              <button type="button" data-val="sobre" aria-pressed="true">Sobre</button>
+              <button type="button" data-val="audacieux" aria-pressed="false">Audacieux</button>
+            </div>
+          </div>
+
+          <div class="pref-item" id="pref-accents">
+            <label>Accents</label>
+            <div class="row" style="gap:8px;align-items:center">
+              <div class="seg" id="accModeSeg">
+                <button type="button" data-val="auto" aria-pressed="true">Auto</button>
+                <button type="button" data-val="manuel" aria-pressed="false">Manuel</button>
+              </div>
+              <div class="seg" id="accentsSeg" data-disabled="true" title="Désactivé en mode Auto">
+                <button type="button" data-val="0" aria-pressed="false">0</button>
+                <button type="button" data-val="1" aria-pressed="true">1</button>
+                <button type="button" data-val="2" aria-pressed="false">2</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="pref-item" id="pref-darkbot"><label>Bas plutôt sombres</label><input id="prefDarkBot" type="checkbox" checked /></div>
+          <div class="pref-item" id="pref-neutralbelt"><label>Ceinture plutôt neutre</label><input id="prefNeutralBelt" type="checkbox" /></div>
+        </div>
+
+        <div class="col">
+          <div class="row" style="justify-content:space-between;align-items:center">
+            <strong>Neutres applicables <span class="hint">(zone active)</span></strong>
+            <span class="pill" id="refBadge">Zone active : Haut</span>
+          </div>
+          <div id="neutralPanel" class="palette"></div>
+        </div>
+      </section>
+
+      <!-- TENUE -->
+      <section class="block" id="blk-tenue" draggable="true">
+        <header><strong>Tenue (Haut / Ceinture / Bas)</strong><div class="row" style="gap:6px;align-items:center"><span class="handle">⋮⋮</span></div></header>
+        <div class="outfit">
+          <div class="tile" id="tileTop">
+            <div class="zone">Haut</div>
+            <div id="topSwatch" class="swatch"></div>
+            <div class="hexline">
+              <input id="topPicker" type="color">
+              <input id="topHex" type="text" class="hex" value="#6B7280" maxlength="7" title="Hex #RRGGBB">
+              <button class="icon" data-copy="top" title="Copier">📋</button>
+            </div>
+          </div>
+          <div class="tile" id="tileMid">
+            <div class="zone">Ceinture</div>
+            <div id="midSwatch" class="swatch"></div>
+            <div class="hexline">
+              <input id="midPicker" type="color">
+              <input id="midHex" type="text" class="hex" value="#3F3F46" maxlength="7" title="Hex #RRGGBB">
+              <button class="icon" data-copy="mid" title="Copier">📋</button>
+            </div>
+          </div>
+          <div class="tile" id="tileBot">
+            <div class="zone">Bas</div>
+            <div id="botSwatch" class="swatch"></div>
+            <div class="hexline">
+              <input id="botPicker" type="color">
+              <input id="botHex" type="text" class="hex" value="#0F172A" maxlength="7" title="Hex #RRGGBB">
+              <button class="icon" data-copy="bot" title="Copier">📋</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="row" style="justify-content:space-between;align-items:center;gap:8px">
+            <div class="row" style="gap:8px;align-items:center">
+              <strong>Palette de style</strong>
+              <span id="paletteSync" class="pill stale" title="Synchronisation avec la dernière génération">ancienne</span>
+            </div>
+            <span class="pill" id="activeZoneBadge">Zone active : Haut</span>
+          </div>
+          <div id="stylePalette" class="palette stale"></div>
+        </div>
+
+        <div class="toolbar">
+          <button class="ghost" id="btnFaceContrast" title="Aider à détacher le visage">Visage plus détaché</button>
+          <button class="ghost" id="btnShare">Partager</button>
+          <button class="primary" id="btnSuggest">Proposer des accords</button>
+          <button class="ghost" id="btnToMannequin">→ Mannequin</button>
+          <button class="ghost" id="btnReset">Réinitialiser</button>
+        </div>
+      </section>
+
+      <!-- PROPOSITIONS -->
+      <section class="block" id="blk-propositions" draggable="true">
+        <header><strong id="propsTitle">Propositions d’accord</strong><div class="row" style="gap:6px;align-items:center"><span class="handle">⋮⋮</span></div></header>
+        <div id="props" class="props"></div>
+      </section>
+
+      <!-- MANNEQUIN -->
+      <section class="block" id="blk-mannequin" draggable="true">
+        <header><strong>Mannequin</strong><div class="row" style="gap:6px;align-items:center"><span class="handle">⋮⋮</span></div></header>
+
+        <div class="man-cta">
+          <button id="btnHeart" class="icon" data-on="false" title="Ajouter aux favoris">♡</button>
+        </div>
+
+        <div class="man-wrap">
+          <svg id="manSvg" class="man" viewBox="0 0 180 320" xmlns="http://www.w3.org/2000/svg" aria-label="Mannequin">
+            <g class="sil">
+              <circle id="head" cx="90" cy="36" r="18" fill="#E8C7A8" />
+              <rect id="arms" x="20" y="74" width="140" height="18" rx="8" fill="#6B7280"/>
+              <rect id="torso" x="62" y="60" width="56" height="78" rx="10" fill="#6B7280"/>
+              <rect id="belt" x="54" y="142" width="72" height="12" rx="6" fill="#3F3F46"/>
+              <rect id="legs" x="66" y="158" width="48" height="130" rx="10" fill="#0F172A"/>
+            </g>
+          </svg>
+          <span class="pill" id="styleBadge">Scène: Casual • Harmonie: Monochromie</span>
+        </div>
+      </section>
+
+      <!-- FAVORIS -->
+      <section class="block" id="blk-favs" draggable="true">
+        <header><strong>Galerie des favoris</strong><div class="row" style="gap:6px;align-items:center"><span class="handle">⋮⋮</span></div></header>
+        <div id="favList" class="fav-list"></div>
+        <div id="favEmpty" class="empty muted">Aucun favori pour le moment.</div>
+        <div class="row" style="justify-content:flex-end"><button class="ghost" id="btnClearFavs">Vider la galerie</button></div>
+      </section>
+
+    </div>
+  </div>
+
+<script>
+/* ==== Utils Couleur ==== */
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+const toHex=v=>("0"+v.toString(16)).slice(-2);
+const rgbToHex=(r,g,b)=>("#"+toHex(r)+toHex(g)+toHex(b)).toUpperCase();
+function hexToRgb(hex){ hex=hex.replace('#',''); if(hex.length===3){ hex=[...hex].map(c=>c+c).join(''); } const n=parseInt(hex,16); return {r:(n>>16)&255,g:(n>>8)&255,b:n&255}; }
+function rgbToHsl(r,g,b){ r/=255; g/=255; b/=255; const max=Math.max(r,g,b),min=Math.min(r,g,b); let h,s,l=(max+min)/2; if(max===min){ h=s=0; }else{ const d=max-min; s=l>0.5?d/(2-max-min):d/(max+min); switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break;} h/=6; } return {h:h*360,s,l}; }
+function hslToRgb(h,s,l){ h/=360; let r,g,b; if(s===0){ r=g=b=l; }else{ const hue2rgb=(p,q,t)=>{ if(t<0)t+=1; if(t>1)t-=1; if(t<1/6)return p+(q-p)*6*t; if(t<1/2)return q; if(t<2/3)return p+(q-p)*(2/3-t)*6; return p; }; const q=l<.5?l*(1+s):l+s-l*s; const p=2*l-q; r=hue2rgb(p,q,h+1/3); g=hue2rgb(p,q,h); b=hue2rgb(p,q,h-1/3);} return {r:Math.round(r*255),g:Math.round(g*255),b:Math.round(b*255)}; }
+const hslToHex=(h,s,l)=>{const {r,g,b}=hslToRgb(h,s,l); return rgbToHex(r,g,b); };
+const shiftHue=(h,deg)=>{let x=(h+deg)%360; if(x<0)x+=360; return x; };
+function adjustSL(hex, ds=0, dl=0){ const {r,g,b}=hexToRgb(hex); let {h,s,l}=rgbToHsl(r,g,b); s=clamp(s+ds,0,1); l=clamp(l+dl,0,1); return hslToHex(h,s,l); }
+function luminance(hex){ const {r,g,b}=hexToRgb(hex); return 0.2126*r + 0.7152*g + 0.0722*b; }
+const getHsl = (hex)=>{ const {r,g,b}=hexToRgb(hex); return rgbToHsl(r,g,b); }
+const hueDist = (a,b)=>{ let d=Math.abs(a-b)%360; return d>180?360-d:d; }
+
+/* ==== Harmonies + Contexte ==== */
+function harmonySupports(baseHex, mode){
+  const {r,g,b}=hexToRgb(baseHex); let {h,s,l}=rgbToHsl(r,g,b);
+  s = clamp(s, .15, .92); l = clamp(l, .18, .84);
+  const H=(deg,ss=s,ll=l)=>hslToHex(shiftHue(h,deg),ss,ll);
+  let S=[];
+  if(mode==='mono'){ S=[ adjustSL(H(0),-0.08,-0.10), H(0), adjustSL(H(0),-0.08,+0.12), adjustSL(H(0),+0.05,+0.02) ]; }
+  else if(mode==='analog'){ S=[ H(-30), H(-15), H(+15), H(+30) ]; }
+  else if(mode==='comp'){ const c=H(180); S=[ c, adjustSL(c,-0.06,-0.06), H(160), H(200) ]; }
+  else if(mode==='split'){ S=[ H(150), H(210), adjustSL(H(150),-0.05,+0.04), adjustSL(H(210),-0.05,-0.02) ]; }
+  else if(mode==='triad'){ S=[ H(120), H(240), adjustSL(H(120),-0.04,+0.04), adjustSL(H(240),-0.04,-0.02) ]; }
+  else if(mode==='tetrad'){ S=[ H(90), H(180), H(270) ]; }
+  S=S.filter(x=>x.toUpperCase()!==baseHex.toUpperCase());
+  const seen=new Set(); const out=[]; for(const c of S){ const k=c.toUpperCase(); if(!seen.has(k)){ seen.add(k); out.push(c);} }
+  return out;
+}
+function sceneAdjust(hex, scene){
+  const {r,g,b}=hexToRgb(hex); let {h,s,l}=rgbToHsl(r,g,b);
+  if(scene==='bureau'){ s*=0.80; l*=0.96; }
+  else if(scene==='soiree'){ s=clamp(s*1.06,.12,.96); l=clamp(l*0.90,.08,.92); }
+  else if(scene==='exterieur'){ s=clamp(s*1.10,.12,.98); l=clamp(l*1.04,.10,.95); }
+  else { s=clamp(s*0.96,.12,.96); l=clamp(l*1.00,.10,.95); }
+  return hslToHex(h,s,l);
+}
+function seasonAdjust(hex, season){
+  if(season==='printemps') return adjustSL(hex,+0.05,+0.06);
+  if(season==='ete')       return adjustSL(hex,-0.02,+0.02);
+  if(season==='automne')   return adjustSL(hex,+0.02,-0.04);
+  if(season==='hiver')     return adjustSL(hex,+0.08,-0.08);
+  return hex;
+}
+function occasionAdjust(hex, occ){
+  if(occ==='mariage_invite') return adjustSL(hex,-0.04,+0.02);
+  if(occ==='entretien')      return adjustSL(hex,-0.10,-0.02);
+  if(occ==='bal')            return adjustSL(hex,+0.10,+0.00);
+  if(occ==='soiree')         return adjustSL(hex,+0.12,+0.03);
+  if(occ==='gala')           return adjustSL(hex,+0.00,-0.08);
+  return hex;
+}
+
+/* ==== Accents ==== */
+function autoAccentTarget(harmony, scene, occasion, season, intensity){
+  let tgt;
+  if(scene==='bureau')         tgt = (harmony==='mono'||harmony==='analog') ? 0 : 1;
+  else if(scene==='soiree')    tgt = (harmony==='comp'||harmony==='triad'||harmony==='tetrad') ? 2 : 1;
+  else if(scene==='exterieur') tgt = (harmony==='split'||harmony==='triad'||harmony==='tetrad') ? 2 : 1;
+  else                         tgt = (harmony==='triad'||harmony==='tetrad') ? 2 : 1;
+
+  switch(occasion){
+    case 'entretien': tgt = 0; break;
+    case 'mariage_invite': tgt = Math.min(tgt, 1); break;
+    case 'gala': tgt = 1; break;
+    case 'bal':
+    case 'soiree': tgt = 2; break;
+  }
+  if(season==='printemps' || season==='ete'){ if(tgt<2 && (harmony==='split'||harmony==='triad'||harmony==='tetrad')) tgt++; }
+  else if(season==='hiver'){ if(tgt>0 && (harmony==='mono'||harmony==='analog')) tgt--; }
+  if(intensity==='audacieux' && tgt<2) tgt++; else if(intensity==='sobre' && scene==='bureau' && tgt>0) tgt--;
+  return { tgt: Math.max(0, Math.min(2, tgt)) };
+}
+function currentAccentTarget(){
+  if(state.prefs.autoAccents){
+    return autoAccentTarget(
+      state.harmony, state.scene, state.occasion, state.season, state.prefs.intensity
+    ).tgt;
+  }
+  return state.prefs.accents;
+}
+function tuneForAccents(hex){
+  const target=currentAccentTarget();
+  const {h,s,l}=getHsl(hex);
+  if(target===0) return hslToHex(h, Math.min(s,0.30), l);
+  if(target===2) return hslToHex(h, Math.min(1, s+0.18), l);
+  return hex;
+}
+
+/* ==== État & Éléments ==== */
+const ORDER_KEY='stylist_order', FAVS_KEY='stylist_favs', COLLAPSE_KEY='stylist_collapsed_v2', PREFS_KEY='stylist_prefs_v19';
+const state={
+  activeZone:'top',
+  top:'#6B7280', mid:'#3F3F46', bot:'#0F172A',
+  scene:'casual', harmony:'mono', season:'none', occasion:'none',
+  prefs:{ preferDarkBottoms:true, preferNeutralBelt:false, intensity:'sobre', autoAccents:true, accents:1 },
+  locks:{ top:false, mid:false, bot:false },
+  favorites:[],
+  lastNeutral:null,
+  genSeed: Date.now(),
+  paletteFresh:false
+};
+const el={
+  board:document.getElementById('board'),
+  // photo
+  imgInput:document.getElementById('imgInput'),
+  imgCanvas:document.getElementById('imgCanvas'),
+  palette:document.getElementById('palette'),
+  btnClearPhoto:document.getElementById('btnClearPhoto'),
+  // prefs
+  scene:document.getElementById('scene'),
+  harmony:document.getElementById('harmony'),
+  season:document.getElementById('season'),
+  occasion:document.getElementById('occasion'),
+  intensitySeg:document.getElementById('intensitySeg'),
+  accModeSeg:document.getElementById('accModeSeg'),
+  accentsSeg:document.getElementById('accentsSeg'),
+  prefDarkBot:document.getElementById('prefDarkBot'),
+  prefNeutralBelt:document.getElementById('prefNeutralBelt'),
+  refBadge:document.getElementById('refBadge'),
+  neutralPanel:document.getElementById('neutralPanel'),
+  // tenue
+  topPicker:document.getElementById('topPicker'), midPicker:document.getElementById('midPicker'), botPicker:document.getElementById('botPicker'),
+  topSwatch:document.getElementById('topSwatch'), midSwatch:document.getElementById('midSwatch'), botSwatch:document.getElementById('botSwatch'),
+  topHex:document.getElementById('topHex'), midHex:document.getElementById('midHex'), botHex:document.getElementById('botHex'),
+  activeZoneBadge:document.getElementById('activeZoneBadge'),
+  stylePalette:document.getElementById('stylePalette'),
+  paletteSync:document.getElementById('paletteSync'),
+  btnSuggest:document.getElementById('btnSuggest'), btnReset:document.getElementById('btnReset'),
+  btnShare:document.getElementById('btnShare'),
+  btnToMannequin:document.getElementById('btnToMannequin'),
+  btnFaceContrast:document.getElementById('btnFaceContrast'),
+  tileTop:document.getElementById('tileTop'),
+  tileMid:document.getElementById('tileMid'),
+  tileBot:document.getElementById('tileBot'),
+  // props
+  props:document.getElementById('props'), propsTitle:document.getElementById('propsTitle'),
+  // mannequin
+  manSvg:document.getElementById('manSvg'),
+  styleBadge:document.getElementById('styleBadge'),
+  btnHeart:document.getElementById('btnHeart'),
+  // favs
+  favList:document.getElementById('favList'), favEmpty:document.getElementById('favEmpty'), btnClearFavs:document.getElementById('btnClearFavs')
+};
+
+/* ==== UI Tenue ==== */
+const zoneLabel=(z=state.activeZone)=> z==='top'?'Haut':z==='mid'?'Ceinture':'Bas';
+function refreshOutfit(){
+  el.topPicker.value=state.top; el.midPicker.value=state.mid; el.botPicker.value=state.bot;
+  el.topSwatch.style.background=state.top; el.topHex.value=state.top.toUpperCase();
+  el.midSwatch.style.background=state.mid; el.midHex.value=state.mid.toUpperCase();
+  el.botSwatch.style.background=state.bot; el.botHex.value=state.bot.toUpperCase();
+
+  [el.tileTop, el.tileMid, el.tileBot].forEach(t=>t.classList.remove('active'));
+  (state.activeZone==='top'?el.tileTop:state.activeZone==='mid'?el.tileMid:el.tileBot).classList.add('active');
+
+  el.refBadge.textContent='Zone active : '+zoneLabel();
+  el.activeZoneBadge.textContent='Zone active : '+zoneLabel();
+  updateMannequin(); updateStyleBadge(); updatePropsTitle(); updateHeartButton();
+}
+function setActive(zone){ state.activeZone=zone; markPaletteStale(); renderNeutrals(); refreshOutfit(); }
+function normalizeHex(h){
+  if(!h) return null;
+  h = h.trim().toUpperCase();
+  if(/^#[0-9A-F]{6}$/.test(h)) return h;
+  if(/^[0-9A-F]{6}$/.test(h)) return '#'+h;
+  return null;
+}
+function setZoneColor(zone, hex){ 
+  hex = normalizeHex(hex);
+  if(!hex) return;
+  state[zone]=hex; markPaletteStale(); refreshOutfit(); 
+}
+
+/* ==== Badge Palette ==== */
+function updatePaletteBadge(){
+  if(!el.paletteSync) return;
+  if(state.paletteFresh){
+    el.paletteSync.textContent='LIVE';
+    el.paletteSync.classList.remove('stale');
+  }else{
+    el.paletteSync.textContent='ancienne';
+    el.paletteSync.classList.add('stale');
+  }
+}
+function markPaletteStale(){ state.paletteFresh=false; updatePaletteBadge(); el.stylePalette.classList.add('stale'); }
+function markPaletteLive(){ state.paletteFresh=true; updatePaletteBadge(); el.stylePalette.classList.remove('stale'); }
+
+/* ==== Neutres ==== */
+const neutralSets={
+  universels:[{hex:'#0F172A',name:'Bleu nuit'},{hex:'#111827',name:'Noir doux'},{hex:'#374151',name:'Gris anthracite'},{hex:'#9CA3AF',name:'Gris clair'},{hex:'#D1D5DB',name:'Gris perle'}],
+  chauds:[{hex:'#7C5A33',name:'Camel'},{hex:'#A68A64',name:'Taupe'},{hex:'#8B5E34',name:'Cognac'}],
+  froids:[{hex:'#1F2937',name:'Bleu charbon'},{hex:'#1E3A8A',name:'Marine'},{hex:'#0E7490',name:'Bleu pétrole'}],
+  ivoire:[{hex:'#F5F5F4',name:'Ivoire'},{hex:'#E7E5E4',name:'Perle'}],
+  clairs:[{hex:'#F3F4F6',name:'Gris très clair'},{hex:'#E5E7EB',name:'Brume'}],
+  sombres:[{hex:'#0B0B0B',name:'Noir profond'},{hex:'#27272A',name:'Graphite'}],
+};
+function neutralFilterByPreferences(hex){
+  const {s,l}=getHsl(hex);
+  if(state.activeZone==='mid' && state.prefs.preferNeutralBelt && s>0.28) return false;
+  if(state.activeZone==='bot' && state.prefs.preferDarkBottoms && l>0.45) return false;
+  if(state.prefs.intensity==='sobre' && s>0.55) return false;
+  return true;
+}
+function renderNeutrals(){
+  const {scene, season, occasion} = state;
+
+  const scenePick = scene==='soiree'   ? [...neutralSets.sombres, ...neutralSets.ivoire]
+                  : scene==='exterieur'? [neutralSets.universels[0], {hex:'#0EA5E9',name:'Bleu clair'}, {hex:'#10B981',name:'Vert doux'}]
+                  : scene==='bureau'   ? [{hex:'#111827',name:'Noir pro'},{hex:'#4B5563',name:'Gris ardoise'},{hex:'#D1D5DB',name:'Gris perle'}]
+                  : [{hex:'#0F172A',name:'Marine'},{hex:'#374151',name:'Gris anthracite'},{hex:'#9CA3AF',name:'Gris clair'}];
+
+  const seasonPick = season==='printemps' ? [...neutralSets.ivoire, ...neutralSets.chauds]
+                   : season==='ete'       ? [...neutralSets.clairs, ...neutralSets.ivoire]
+                   : season==='automne'   ? [...neutralSets.chauds, {hex:'#5B4636',name:'Brun noix'}]
+                   : season==='hiver'     ? [...neutralSets.froids, ...neutralSets.sombres]
+                   : [];
+
+  const occPick = occasion==='entretien'      ? [{hex:'#1F2937',name:'Charcoal'},{hex:'#1E3A8A',name:'Navy'},{hex:'#E5E7EB',name:'Blanc cassé'}]
+                 : occasion==='mariage_invite'? [{hex:'#F4F4F5',name:'Ivoire chic'},{hex:'#4B5563',name:'Gris ardoise'}]
+                 : occasion==='gala'          ? [{hex:'#0B0B0B',name:'Noir gala'},{hex:'#F3F4F6',name:'Blanc doux'}]
+                 : occasion==='soiree'||occasion==='bal' ? [{hex:'#0B0B0B',name:'Noir profond'},{hex:'#27272A',name:'Graphite'}]
+                 : [];
+
+  let all=[...scenePick, ...seasonPick, ...occPick, ...neutralSets.universels];
+  all = all.filter(n=>neutralFilterByPreferences(n.hex));
+
+  if(state.prefs.intensity==='audacieux'){
+    const enrich = [{hex:'#0b0b0b',name:'Noir profond+'},{hex:'#f3f4f6',name:'Blanc doux+'}];
+    all = [...all, ...enrich];
+  }
+
+  const uniq=[]; const seen=new Set();
+  all.forEach(n=>{const k=String(n.hex).toUpperCase(); if(!seen.has(k)){ seen.add(k); uniq.push({hex:k,name:n.name}); }});
+
+  el.neutralPanel.innerHTML='';
+  uniq.forEach(n=>{
+    const d=document.createElement('button');
+    d.className='chip';
+    d.style.background=n.hex;
+    d.title=n.name;
+    d.addEventListener('click',()=>{ setZoneColor(state.activeZone, n.hex); state.lastNeutral = n.hex; });
+    el.neutralPanel.appendChild(d);
+  });
+}
+
+/* ==== Préférences persistantes ==== */
+function loadPrefs(){ try{ const raw=localStorage.getItem(PREFS_KEY); if(raw){ const p=JSON.parse(raw); Object.assign(state,p); }}catch{} }
+function savePrefs(){ localStorage.setItem(PREFS_KEY, JSON.stringify(state)); }
+function applyPrefsToUI(){
+  el.scene.value=state.scene; el.harmony.value=state.harmony; el.season.value=state.season; el.occasion.value=state.occasion;
+  setSeg(el.intensitySeg, state.prefs.intensity);
+  setSeg(el.accentsSeg, String(state.prefs.accents));
+  setSeg(el.accModeSeg, state.prefs.autoAccents ? 'auto' : 'manuel');
+  el.accentsSeg.dataset.disabled = state.prefs.autoAccents ? 'true' : 'false';
+  el.prefDarkBot.checked = !!state.prefs.preferDarkBottoms;
+  el.prefNeutralBelt.checked = !!state.prefs.preferNeutralBelt;
+}
+
+/* ==== Segmented helpers (plus de highlight parent) ==== */
+function setSeg(seg, val){ seg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.val===val))); }
+function wireSeg(seg, cb){ seg.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ setSeg(seg, b.dataset.val); cb(b.dataset.val); savePrefs(); })); }
+function updatePrefHighlights(){
+  // seulement état disabled/enabled des accents
+  el.accentsSeg.dataset.disabled = state.prefs.autoAccents ? 'true' : 'false';
+}
+
+/* ==== RNG & Propositions ==== */
+function mulberry32(a){ return function(){ let t=a+=0x6D2B79F5; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; } }
+function shuffle(arr, rng){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(rng()* (i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function uniqTrips(arr){ const seen=new Set(), out=[]; for(const t of arr){ const k=t.map(c=>c.toUpperCase()).join('|'); if(!seen.has(k)){ seen.add(k); out.push(t); } } return out; }
+
+/* ==== Génération des propositions ==== */
+function generateProposals(){
+  const base=state[state.activeZone], scene=state.scene, mode=state.harmony;
+  const rng = mulberry32(++state.genSeed);
+
+  let supports = harmonySupports(base, mode)
+    .map(c => sceneAdjust(c, scene))
+    .map(c => seasonAdjust(c, state.season))
+    .map(c => occasionAdjust(c, state.occasion))
+    .map(c => state.prefs.intensity==='audacieux' ? adjustSL(c,+0.12,0) : adjustSL(c,-0.06,0))
+    .map(c => tuneForAccents(c));
+
+  supports = supports.filter((v,i,a)=>a.findIndex(x=>x.toUpperCase()===v.toUpperCase())===i);
+  supports = shuffle(supports, rng);
+  if(!supports.length){ supports = [adjustSL(base,-0.05,+0.05), adjustSL(base,-0.1,-0.08), adjustSL(base,+0.08,0)]; }
+
+  let pairs=[];
+  for(let i=0;i<supports.length;i++){
+    for(let j=0;j<supports.length;j++){
+      if(i===j) continue;
+      pairs.push([supports[i],supports[j]]);
+    }
+  }
+  for(let k=0;k<supports.length;k++){
+    pairs.push([adjustSL(supports[k],+0.03,+0.03), adjustSL(supports[(k+1)%supports.length],-0.03,-0.02)]);
+  }
+  pairs = shuffle(pairs, rng);
+
+  const beltNeutral = state.lastNeutral || (state.scene==='soiree' ? '#0B0B0B' : state.scene==='bureau' ? '#4B5563' : '#374151');
+
+  const trips = pairs.map(([a,b])=>{
+    let t,m,bm;
+    if(state.activeZone==='top'){ t=base; m=state.prefs.preferNeutralBelt?beltNeutral:a; bm=b; }
+    else if(state.activeZone==='mid'){ t=a; m=base; bm=b; }
+    else { t=a; m=state.prefs.preferNeutralBelt?beltNeutral:b; bm=base; }
+
+    if(state.prefs.preferDarkBottoms){
+      const Lb=luminance(bm), Lt=luminance(t);
+      if(Lb > Lt){ bm = adjustSL(bm, -0.02, -0.10); }
+    }
+    return [t,m,bm];
+  });
+
+  const scored = uniqTrips(trips).map(tri=>({tri, score: scoreTriplet(tri)}))
+                    .sort((a,b)=>b.score-a.score).slice(0,6);
+  return scored;
+}
+
+/* ==== Scoring ==== */
+function harmonyPenalty(tri){
+  const baseH = getHsl(state[state.activeZone]).h;
+  const [tH,mH,bH] = tri.map(c=>getHsl(c).h);
+  let p=0;
+  if(state.harmony==='mono'){
+    p += (hueDist(tH,baseH)+hueDist(bH,baseH))/20;
+  }else if(state.harmony==='analog'){
+    p += Math.abs(hueDist(tH,baseH)-20)/25 + Math.abs(hueDist(bH,baseH)-20)/25;
+  }else if(state.harmony==='comp'){
+    const best = Math.min(hueDist(tH,baseH+180), hueDist(bH,baseH+180));
+    p += best/18;
+  }else if(state.harmony==='split'){
+    const target1=baseH+150, target2=baseH+210;
+    const best1=Math.min(hueDist(tH,target1),hueDist(bH,target1));
+    const best2=Math.min(hueDist(tH,target2),hueDist(bH,target2));
+    p += (best1+best2)/30;
+  }else if(state.harmony==='triad'){
+    const targets=[baseH+120,baseH+240];
+    const sum = targets.map(tt=>Math.min(hueDist(tH,tt),hueDist(bH,tt))).reduce((a,b)=>a+b,0);
+    p += sum/28;
+  }else if(state.harmony==='tetrad'){
+    const targets=[baseH+90,baseH+180,baseH+270];
+    const sum = targets.map(tt=>Math.min(hueDist(tH,tt),hueDist(bH,tt))).reduce((a,b)=>a+b,0);
+    p += sum/36;
+  }
+  return p;
+}
+function accentsPenalty(tri){
+  const accents = tri.filter(c=>getHsl(c).s>0.55).length;
+  const target = currentAccentTarget();
+  return Math.abs(accents-target)*2.4;
+}
+function beltPenalty(tri){
+  const m=tri[1], t=tri[0], b=tri[2];
+  let p=0; const mL=getHsl(m).l, tL=getHsl(t).l, bL=getHsl(b).l;
+  const isNeutral = getHsl(m).s < 0.22;
+  if(!isNeutral && state.prefs.preferNeutralBelt) p+=2;
+  if(Math.abs(mL-tL)<0.04) p+=1;
+  if(Math.abs(mL-bL)<0.04) p+=1;
+  return p;
+}
+function scoreTriplet(tri){
+  let score = 100;
+  score -= harmonyPenalty(tri)*5;
+  score -= beltPenalty(tri)*2;
+  score -= accentsPenalty(tri)*3;
+  return score;
+}
+
+/* ==== Propositions + titre ==== */
+function renderProposals(items){
+  el.props.innerHTML='';
+  items.forEach(({tri})=>{
+    const row=document.createElement('div'); row.className='prop-row';
+    row.dataset.key = favKey(tri);
+    const bars=document.createElement('div'); bars.className='bars';
+    tri.forEach(c=>{ const d=document.createElement('div'); d.style.background=c; bars.appendChild(d); });
+    const actions=document.createElement('div'); actions.className='actions';
+    const btnApply=document.createElement('button'); btnApply.className='icon'; btnApply.title='Appliquer'; btnApply.textContent='✅';
+    btnApply.addEventListener('click',()=>applyTriplet(tri));
+    const btnFav=document.createElement('button'); btnFav.className='icon'; btnFav.title='Ajouter aux favoris'; 
+    setStarVisual(btnFav, tri);
+    btnFav.addEventListener('click',()=>{ toggleFavorite(tri); setStarVisual(btnFav, tri); });
+    const btnDl=document.createElement('button'); btnDl.className='icon'; btnDl.title='Exporter PNG'; btnDl.textContent='⬇️';
+    btnDl.addEventListener('click',()=>exportLook(tri));
+    actions.append(btnApply,btnFav,btnDl);
+    row.append(bars, actions);
+    el.props.appendChild(row);
+  });
+  updatePropsTitle();
+}
+
+/* Visuel étoile rempli/creux + MAJ globale après changements */
+function setStarVisual(btn, tri){
+  const on=isFav(tri);
+  btn.textContent = on ? '★' : '⭐';
+  btn.setAttribute('data-fav', favKey(tri));
+  btn.title = on ? 'Retirer des favoris' : 'Ajouter aux favoris';
+}
+function refreshProposalStars(){
+  document.querySelectorAll('#props .actions button[data-fav]').forEach(btn=>{
+    const key=btn.getAttribute('data-fav');
+    const on = state.favorites.some(f=>favKey(f)===key);
+    btn.textContent = on ? '★' : '⭐';
+    btn.title = on ? 'Retirer des favoris' : 'Ajouter aux favoris';
+  });
+}
+
+function labelScene(v){ return ({casual:'Casual',bureau:'Bureau',soiree:'Soirée',exterieur:'Extérieur'})[v]||v; }
+function labelHarmony(v){ return ({mono:'Monochromie',analog:'Analogues',comp:'Complémentaire',split:'Split-complémentaire',triad:'Triadique',tetrad:'Tétradique'})[v]||v; }
+function labelSeason(v){ return ({none:'Indifférent',printemps:'Printemps',ete:'Été',automne:'Automne',hiver:'Hiver'})[v]||v; }
+function labelOccasion(v){ return ({none:'Indifférent',mariage_invite:'Mariage (invité)',entretien:'Entretien pro',bal:'Bal',soiree:'Soirée',gala:'Gala'})[v]||v; }
+function prefsSummary(){
+  const p=state.prefs; const bits=[];
+  bits.push('intensité '+(p.intensity==='audacieux'?'audacieuse':'sobre'));
+  bits.push(p.autoAccents ? `accents auto (${currentAccentTarget()})` : `${p.accents} accent(s)`);
+  if(p.preferDarkBottoms) bits.push('bas sombres');
+  if(p.preferNeutralBelt) bits.push('ceinture neutre');
+  return bits.join(' • ');
+}
+function updatePropsTitle(){
+  const ctx = `Scène: ${labelScene(state.scene)} • Harmonie: ${labelHarmony(state.harmony)} • Saison: ${labelSeason(state.season)} • Occasion: ${labelOccasion(state.occasion)}`;
+  const pref = prefsSummary();
+  el.propsTitle.textContent = `Propositions d’accord (${ctx} • ${pref})`;
+}
+
+/* ==== Palette de style (rafraîchie UNIQUEMENT sur demande) ==== */
+function buildStylePalette(){
+  const base=state[state.activeZone];
+  let cols=[base, ...harmonySupports(base, state.harmony)];
+  cols = cols.map(c=> sceneAdjust(c, state.scene))
+             .map(c=> seasonAdjust(c, state.season))
+             .map(c=> occasionAdjust(c, state.occasion))
+             .map(c=> state.prefs.intensity==='audacieux' ? adjustSL(c,+0.10,0) : adjustSL(c,-0.04,0))
+             .map(c=> tuneForAccents(c));
+
+  let extraNeutrals = state.scene==='soiree' ? ['#0B0B0B','#27272A','#F4F4F5']
+                   : state.scene==='bureau'  ? ['#111827','#4B5563','#D1D5DB']
+                   : ['#0F172A','#374151','#9CA3AF'];
+  if(state.activeZone==='mid' && state.prefs.preferNeutralBelt) extraNeutrals = extraNeutrals.filter(h=>getHsl(h).s<0.28);
+  if(state.activeZone==='bot' && state.prefs.preferDarkBottoms) extraNeutrals = extraNeutrals.filter(h=>getHsl(h).l<0.45);
+
+  cols = [...cols, ...extraNeutrals];
+  const seen=new Set(); cols = cols.filter(h=>{const k=h.toUpperCase(); if(seen.has(k)) return false; seen.add(k); return true;}).slice(0,24);
+  return cols;
+}
+function renderStylePalette(){
+  const colors = buildStylePalette();
+  el.stylePalette.innerHTML='';
+  colors.forEach(hex=>{
+    const chip=document.createElement('button'); chip.className='chip'; chip.style.background=hex; chip.title=hex.toUpperCase();
+    chip.addEventListener('click',()=>{ setZoneColor(state.activeZone, hex); });
+    el.stylePalette.appendChild(chip);
+  });
+  markPaletteLive();
+}
+
+/* ==== Mannequin ==== */
+function updateMannequin(){
+  document.getElementById('arms').setAttribute('fill', state.top);
+  document.getElementById('torso').setAttribute('fill', state.top);
+  document.getElementById('belt').setAttribute('fill', state.mid);
+  document.getElementById('legs').setAttribute('fill', state.bot);
+}
+function updateStyleBadge(){
+  el.styleBadge.textContent = `Scène: ${labelScene(state.scene)} • Harmonie: ${labelHarmony(state.harmony)}`;
+}
+
+/* ==== Favoris ==== */
+function loadFavorites(){ try{ const raw=localStorage.getItem(FAVS_KEY); state.favorites = raw ? JSON.parse(raw) : []; }catch{ state.favorites=[]; } }
+function saveFavorites(){ localStorage.setItem(FAVS_KEY, JSON.stringify(state.favorites)); }
+const favKey = tri => tri.map(c=>c.toUpperCase()).join('|');
+function isFav(tri){ return state.favorites.some(f=>favKey(f)===favKey(tri)); }
+function addFavorite(tri){ const key=favKey(tri); if(state.favorites.some(f=>favKey(f)===key)) return; state.favorites.unshift(tri); saveFavorites(); renderFavorites(); updateHeartButton(); refreshProposalStars(); }
+function removeFavoriteByKey(key){ state.favorites = state.favorites.filter(f=>favKey(f)!==key); saveFavorites(); renderFavorites(); updateHeartButton(); refreshProposalStars(); }
+function toggleFavorite(tri){ const key=favKey(tri); if(state.favorites.some(f=>favKey(f)===key)) removeFavoriteByKey(key); else addFavorite(tri); }
+function toggleCurrentFavorite(){ toggleFavorite([state.top,state.mid,state.bot]); }
+function updateHeartButton(){
+  const tri=[state.top,state.mid,state.bot];
+  const on=isFav(tri);
+  el.btnHeart.dataset.on = on ? 'true' : 'false';
+  el.btnHeart.textContent = on ? '❤' : '♡';
+  el.btnHeart.title = on ? 'Retirer des favoris' : 'Ajouter aux favoris';
+}
+function clearFavorites(){ state.favorites=[]; saveFavorites(); renderFavorites(); updateHeartButton(); refreshProposalStars(); }
+function renderFavorites(){
+  const list=el.favList; list.innerHTML='';
+  if(!state.favorites.length){ el.favEmpty.classList.remove('hidden'); return; }
+  el.favEmpty.classList.add('hidden');
+  state.favorites.forEach(tri=>{
+    const key=favKey(tri);
+    const item=document.createElement('div'); item.className='prop-row';
+    const bars=document.createElement('div'); bars.className='bars';
+    tri.forEach(c=>{ const d=document.createElement('div'); d.style.background=c; bars.appendChild(d); });
+    const actions=document.createElement('div'); actions.className='actions';
+    const btnUse=document.createElement('button'); btnUse.className='icon'; btnUse.title='Appliquer'; btnUse.textContent='🎯';
+    btnUse.addEventListener('click',()=>applyTriplet(tri));
+    const btnDel=document.createElement('button'); btnDel.className='icon'; btnDel.title='Supprimer'; btnDel.textContent='🗑️';
+    btnDel.addEventListener('click',()=>removeFavoriteByKey(key));
+    item.append(bars,actions); actions.append(btnUse,btnDel); list.appendChild(item);
+  });
+}
+document.getElementById('btnClearFavs').addEventListener('click', clearFavorites);
+
+/* ==== Partage / Export ==== */
+function shareState(){
+  const data={ colors:{top:state.top,mid:state.mid,bot:state.bot},
+    ctx:{scene:state.scene,harmony:state.harmony,season:state.season,occasion:state.occasion},
+    prefs:state.prefs, locks:state.locks, paletteFresh:state.paletteFresh };
+  const hash='state='+encodeURIComponent(btoa(JSON.stringify(data)));
+  const url=location.origin+location.pathname+'#'+hash;
+  navigator.clipboard.writeText(url).then(()=>alert('Lien copié dans le presse-papiers !'),()=>prompt('Copie manuelle :', url));
+}
+function updateShareHash(){
+  const data={ colors:{top:state.top,mid:state.mid,bot:state.bot},
+    ctx:{scene:state.scene,harmony:state.harmony,season:state.season,occasion:state.occasion},
+    prefs:state.prefs, locks:state.locks, paletteFresh:state.paletteFresh };
+  const hash='state='+encodeURIComponent(btoa(JSON.stringify(data)));
+  history.replaceState(null,'','#'+hash);
+}
+function readHash(){
+  if(!location.hash.startsWith('#state=')) return;
+  try{
+    const raw=decodeURIComponent(location.hash.slice(7)); const obj=JSON.parse(atob(raw));
+    if(obj.colors){ state.top=obj.colors.top; state.mid=obj.colors.mid; state.bot=obj.colors.bot; }
+    if(obj.ctx){ Object.assign(state,obj.ctx); }
+    if(obj.prefs){ Object.assign(state.prefs,obj.prefs); }
+    if(obj.locks){ state.locks=obj.locks; }
+    if(typeof obj.paletteFresh==='boolean'){ state.paletteFresh=obj.paletteFresh; }
+  }catch(e){ console.warn('Hash invalide'); }
+}
+
+/* ==== Apply / Export ==== */
+function applyTriplet(tri){
+  setZoneColor('top',tri[0]); setZoneColor('mid',tri[1]); setZoneColor('bot',tri[2]);
+}
+async function exportLook(tri){
+  const svg = document.getElementById('manSvg').outerHTML
+    .replace(/#6B7280/g, tri[0]).replace(/#3F3F46/g, tri[1]).replace(/#0F172A/g, tri[2]);
+  const img = new Image(); img.src = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
+  await img.decode();
+  const c=document.createElement('canvas'); c.width=520; c.height=360;
+  const ctx=c.getContext('2d'); ctx.fillStyle="#0b0e16"; ctx.fillRect(0,0,c.width,c.height);
+  ctx.drawImage(img, 40, 20, 220, 300);
+  [tri[0],tri[1],tri[2]].forEach((col,i)=>{ ctx.fillStyle=col; ctx.fillRect(300, 40+i*90, 180, 60); });
+  ctx.fillStyle="#fff"; ctx.font="14px Inter,Arial"; ctx.fillText(tri[0], 300, 115); ctx.fillText(tri[1], 300, 205); ctx.fillText(tri[2], 300, 295);
+  const a=document.createElement('a'); a.download='tenue.png'; a.href=c.toDataURL('image/png'); a.click();
+}
+
+/* ==== Palette depuis photo ==== */
+async function extractPaletteFromImage(img,count=16){
+  const cvs=el.imgCanvas, ctx=cvs.getContext('2d',{willReadFrequently:true});
+  const maxDim=440; const scale=Math.min(maxDim/img.width, maxDim/img.height, 1);
+  cvs.width=Math.max(1,Math.round(img.width*scale)); cvs.height=Math.max(1,Math.round(img.height*scale));
+  ctx.drawImage(img,0,0,cvs.width,cvs.height);
+  const {data}=ctx.getImageData(0,0,cvs.width,cvs.height);
+  const bins=new Map();
+  for(let i=0;i<data.length;i+=4){
+    const a=data[i+3]; if(a<180) continue;
+    const r=data[i]>>3,g=data[i+1]>>3,b=data[i+2]>>3; const key=(r<<10)|(g<<5)|b;
+    bins.set(key,(bins.get(key)||0)+1);
+  }
+  const entries=[...bins.entries()].sort((a,b)=>b[1]-a[1]);
+  const pick=[]; const minD=22;
+  const dist=(k1,k2)=>{ const r1=(k1>>10)&31,g1=(k1>>5)&31,b1=k1&31; const r2=(k2>>10)&31,g2=(k2>>5)&31,b2=k2&31; const dr=r1-r2,dg=g1-g2,db=b1-b2; return dr*dr+dg*dg+db*db; };
+  for(const [k] of entries){ if(!pick.length || pick.every(pk=>dist(pk,k)>minD)) pick.push(k); if(pick.length>=count) break; }
+  return pick.map(k=>{ const r=((k>>10)&31)<<3, g=((k>>5)&31)<<3, b=(k&31)<<3; return rgbToHex(r,g,b); });
+}
+function renderPalette(colors){
+  el.palette.innerHTML='';
+  if(!colors?.length){ el.palette.innerHTML='<small class="hint">Aucune couleur détectée.</small>'; return; }
+  colors.forEach(hex=>{
+    const chip=document.createElement('button'); chip.className='chip'; chip.style.background=hex; chip.title=hex.toUpperCase();
+    chip.addEventListener('click',()=>{ setZoneColor(state.activeZone, hex); });
+    el.palette.appendChild(chip);
+  });
+}
+function clearPhotoPalette(){
+  el.imgCanvas.width=0; el.imgCanvas.height=0; el.imgCanvas.classList.add('hidden');
+  el.palette.innerHTML=''; el.imgInput.value='';
+}
+
+/* ==== Drag & Drop ==== */
+(function enableDnD(){
+  const board=el.board; let dragging=null;
+  board.addEventListener('dragstart', e=>{ const blk=e.target.closest('.block'); if(!blk) return; dragging=blk; blk.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+  board.addEventListener('dragend', ()=>{ if(dragging){ dragging.classList.remove('dragging'); dragging=null; saveOrder(); } });
+  board.addEventListener('dragover', e=>{
+    e.preventDefault();
+    const after=getDragAfterElement(board,e.clientY);
+    const draggingEl=document.querySelector('.dragging'); if(!draggingEl) return;
+    if(after==null) board.appendChild(draggingEl); else board.insertBefore(draggingEl, after);
+  });
+  function getDragAfterElement(container,y){
+    const els=[...container.querySelectorAll('.block:not(.dragging)')];
+    return els.reduce((closest,child)=>{
+      const box=child.getBoundingClientRect(); const offset=y-box.top-box.height/2;
+      if(offset<0 && offset>closest.offset){ return {offset,element:child}; } else return closest;
+    },{offset:Number.NEGATIVE_INFINITY}).element;
+  }
+})();
+function saveOrder(){ const ids=[...document.querySelectorAll('.board > .block')].map(b=>b.id); localStorage.setItem(ORDER_KEY, JSON.stringify(ids)); }
+function loadOrder(){
+  try{ const raw=localStorage.getItem(ORDER_KEY); if(!raw) return;
+    const ids=JSON.parse(raw); const map={}; [...document.querySelectorAll('.board > .block')].forEach(b=>map[b.id]=b);
+    ids.forEach(id=>{ if(map[id]) el.board.appendChild(map[id]); });
+  }catch{}
+}
+
+/* ==== Repli / Dépli ==== */
+function getCollapsedSet(){
+  try { return new Set(JSON.parse(localStorage.getItem(COLLAPSE_KEY) || '[]')); }
+  catch { return new Set(); }
+}
+function saveCollapsedSet(set){
+  localStorage.setItem(COLLAPSE_KEY, JSON.stringify([...set]));
+}
+function installCollapsers(){
+  const collapsed = getCollapsedSet();
+
+  document.querySelectorAll('.block').forEach(blk=>{
+    const header = blk.querySelector('header');
+    if(!header) return;
+
+    let btn = header.querySelector('button.collapse');
+    if(!btn){
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'icon collapse';
+      btn.setAttribute('aria-label','Replier/déplier ce bloc');
+      btn.setAttribute('aria-controls', blk.id);
+
+      const handle = header.querySelector('.handle');
+      const host   = handle ? handle.parentElement : header;
+      host.insertBefore(btn, handle || host.firstChild);
+
+      btn.addEventListener('mousedown', e=> e.stopPropagation());
+
+      const toggle = ()=>{
+        blk.classList.toggle('collapsed');
+        const set=getCollapsedSet();
+        if(blk.classList.contains('collapsed')) set.add(blk.id);
+        else set.delete(blk.id);
+        saveCollapsedSet(set);
+        sync();
+      };
+      btn.addEventListener('click', toggle);
+      btn.addEventListener('keydown', e=>{ if(e.key===' ' || e.key==='Enter'){ e.preventDefault(); toggle(); }});
+      header.addEventListener('dblclick', toggle);
+    }
+
+    if(collapsed.has(blk.id)) blk.classList.add('collapsed');
+
+    const sync = ()=>{
+      const expanded = !blk.classList.contains('collapsed');
+      btn.textContent = expanded ? '▾' : '▸';
+      btn.setAttribute('aria-expanded', String(expanded));
+      btn.title = expanded ? 'Replier' : 'Déplier';
+    };
+    sync();
+  });
+}
+
+/* ==== Events ==== */
+['topSwatch','midSwatch','botSwatch'].forEach((id,i)=>{
+  document.getElementById(id).addEventListener('click',()=>setActive(['top','mid','bot'][i]));
+});
+['tileTop','tileMid','tileBot'].forEach((id,i)=>{
+  document.getElementById(id).addEventListener('click',(e)=>{
+    if(e.target.tagName==='INPUT' || e.target.tagName==='BUTTON') return;
+    setActive(['top','mid','bot'][i]);
+  });
+});
+
+el.topPicker.addEventListener('input', e=>setZoneColor('top', e.target.value));
+el.midPicker.addEventListener('input', e=>setZoneColor('mid', e.target.value));
+el.botPicker.addEventListener('input', e=>setZoneColor('bot', e.target.value));
+
+el.topHex.addEventListener('change', e=>{ const v=normalizeHex(e.target.value); if(v){ setZoneColor('top', v); } else { e.target.value=state.top; }});
+el.midHex.addEventListener('change', e=>{ const v=normalizeHex(e.target.value); if(v){ setZoneColor('mid', v); } else { e.target.value=state.mid; }});
+el.botHex.addEventListener('change', e=>{ const v=normalizeHex(e.target.value); if(v){ setZoneColor('bot', v); } else { e.target.value=state.bot; }});
+document.querySelectorAll('button[data-copy]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const zone=btn.getAttribute('data-copy');
+    const hex=state[zone].toUpperCase();
+    navigator.clipboard.writeText(hex).then(()=>{ btn.textContent='✅'; setTimeout(()=>btn.textContent='📋',800);});
+  });
+});
+
+['scene','harmony','season','occasion'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', e=>{
+    state[id]=e.target.value; renderNeutrals(); updateStyleBadge(); updatePropsTitle(); markPaletteStale(); savePrefs(); updatePrefHighlights();
+  });
+});
+
+wireSeg(el.intensitySeg, v=>{ state.prefs.intensity=v; markPaletteStale(); renderNeutrals(); updatePrefHighlights(); });
+wireSeg(el.accentsSeg, v=>{ state.prefs.accents=parseInt(v,10); updatePrefHighlights(); });
+wireSeg(el.accModeSeg, v=>{ state.prefs.autoAccents = (v==='auto'); updatePrefHighlights(); });
+
+el.prefDarkBot.addEventListener('change', ()=>{ state.prefs.preferDarkBottoms=el.prefDarkBot.checked; savePrefs(); renderNeutrals(); markPaletteStale(); });
+el.prefNeutralBelt.addEventListener('change', ()=>{ state.prefs.preferNeutralBelt=el.prefNeutralBelt.checked; savePrefs(); renderNeutrals(); markPaletteStale(); });
+
+el.btnSuggest.addEventListener('click', ()=>{
+  const res=generateProposals();
+  renderProposals(res);
+  renderStylePalette();
+  updateShareHash();
+  refreshProposalStars();
+});
+el.btnReset.addEventListener('click', ()=>{
+  state.activeZone='top';
+  state.top='#6B7280'; state.mid='#3F3F46'; state.bot='#0F172A';
+  state.scene='casual'; state.harmony='mono'; state.season='none'; state.occasion='none';
+  state.prefs={ preferDarkBottoms:true, preferNeutralBelt:false, intensity:'sobre', autoAccents:true, accents:1 };
+  refreshOutfit(); renderNeutrals(); el.stylePalette.innerHTML=''; markPaletteStale(); el.props.innerHTML=''; updateShareHash(); savePrefs(); updatePrefHighlights(); refreshProposalStars();
+});
+el.btnShare.addEventListener('click', shareState);
+el.btnFaceContrast.addEventListener('click', ()=>{
+  const {l}=getHsl(state.top);
+  const scene=state.scene;
+  const delta = scene==='bureau' ? 0.10 : scene==='soiree' ? 0.16 : 0.14;
+  const ds = scene==='bureau' ? -0.05 : +0.06;
+  const dl = (l<0.50) ? +delta : -delta;
+  setZoneColor('top', adjustSL(state.top, ds, dl));
+});
+el.btnToMannequin.addEventListener('click', ()=>{ updateMannequin(); });
+
+el.btnHeart.addEventListener('click', toggleCurrentFavorite);
+
+/* Photo palette */
+el.imgInput.addEventListener('change', async e=>{
+  const file=e.target.files?.[0]; if(!file) return;
+  const img=new Image();
+  img.onload=async ()=>{ el.imgCanvas.classList.remove('hidden'); const cols=await extractPaletteFromImage(img,16); renderPalette(cols); };
+  img.onerror=()=>alert("Impossible de lire l'image.");
+  img.src=URL.createObjectURL(file);
+});
+el.btnClearPhoto.addEventListener('click', clearPhotoPalette);
+
+/* ==== Init ==== */
+function init(){
+  readHash(); loadPrefs();
+  applyPrefsToUI();
+  loadFavorites(); renderFavorites();
+  loadOrder();
+  renderNeutrals();
+  refreshOutfit();
+  markPaletteStale(); updatePaletteBadge();
+  updateShareHash();
+  installCollapsers();
+  updatePrefHighlights();
+  refreshProposalStars();
+}
+init();
+</script>
+</body>
+</html>
