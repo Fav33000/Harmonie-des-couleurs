@@ -167,13 +167,7 @@
           <div class="pref-item"><label>Ceinture plutôt neutre</label><input id="prefNeutralBelt" type="checkbox" /></div>
         </div>
 
-        <div class="col">
-          <div class="row" style="justify-content:space-between;align-items:center">
-            <strong>Neutres applicables <span class="hint">(zone active)</span></strong>
-            <span class="pill" id="refBadge">Zone active : Haut</span>
-          </div>
-          <div id="neutralPanel" class="palette"></div>
-        </div>
+        
       </section>
 
       <!-- FAVORIS -->
@@ -223,6 +217,13 @@
             <span class="pill" id="activeZoneBadge">Zone active : Haut</span>
           </div>
           <div id="stylePalette" class="palette stale"></div>
+          <!-- Neutral palette moved here -->
+          <div class="row" style="justify-content:space-between;align-items:center;gap:8px">
+            <strong>Neutres applicables <span class="hint">(zone active)</span></strong>
+            <span class="pill" id="refBadge">Zone active : Haut</span>
+          </div>
+          <div id="neutralPanel" class="palette"></div>
+
         </div>
 
         <div class="toolbar">
@@ -1189,15 +1190,15 @@ document.querySelectorAll('button[data-copy]').forEach(btn=>{
 
 ['scene','harmony','season','occasion'].forEach(id=>{
   document.getElementById(id).addEventListener('change', e=>{
-    state[id]=e.target.value; renderNeutrals(); updateStyleBadge(); updatePropsTitle(); markPaletteStale(); savePrefs(); updatePrefHighlights(); updateShareHash(); refreshClothing();
+    state[id]=e.target.value; const sp=buildStylePalette(); state.styleColors=sp; renderStylePalette(sp); markPaletteLive(); renderNeutrals(); updateStyleBadge(); updatePropsTitle(); markPaletteStale(); savePrefs(); updatePrefHighlights(); updateShareHash(); refreshClothing();
   });
 });
-wireSeg(el.intensitySeg, v=>{ state.prefs.intensity=v; markPaletteStale(); renderNeutrals(); updatePrefHighlights(); refreshClothing(); });
-wireSeg(el.accentsSeg, v=>{ state.prefs.accents=parseInt(v,10); updatePrefHighlights(); refreshClothing(); });
-wireSeg(el.accModeSeg, v=>{ state.prefs.autoAccents = (v==='auto'); updatePrefHighlights(); refreshClothing(); });
+wireSeg(el.intensitySeg, v=>{ state.prefs.intensity=v; const sp=buildStylePalette(); state.styleColors=sp; renderStylePalette(sp); markPaletteLive(); markPaletteStale(); renderNeutrals(); updatePrefHighlights(); refreshClothing(); });
+wireSeg(el.accentsSeg, v=>{ state.prefs.accents=parseInt(v,10); const sp=buildStylePalette(); state.styleColors=sp; renderStylePalette(sp); markPaletteLive(); updatePrefHighlights(); refreshClothing(); });
+wireSeg(el.accModeSeg, v=>{ state.prefs.autoAccents = (v==='auto'); const sp=buildStylePalette(); state.styleColors=sp; renderStylePalette(sp); markPaletteLive(); updatePrefHighlights(); refreshClothing(); });
 
-el.prefDarkBot.addEventListener('change', ()=>{ state.prefs.preferDarkBottoms=el.prefDarkBot.checked; savePrefs(); renderNeutrals(); markPaletteStale(); updateShareHash(); refreshClothing(); });
-el.prefNeutralBelt.addEventListener('change', ()=>{ state.prefs.preferNeutralBelt=el.prefNeutralBelt.checked; savePrefs(); renderNeutrals(); markPaletteStale(); updateShareHash(); refreshClothing(); });
+el.prefDarkBot.addEventListener('change', ()=>{ state.prefs.preferDarkBottoms=el.prefDarkBot.checked; const sp=buildStylePalette(); state.styleColors=sp; renderStylePalette(sp); markPaletteLive(); savePrefs(); renderNeutrals(); markPaletteStale(); updateShareHash(); refreshClothing(); });
+el.prefNeutralBelt.addEventListener('change', ()=>{ state.prefs.preferNeutralBelt=el.prefNeutralBelt.checked; const sp=buildStylePalette(); state.styleColors=sp; renderStylePalette(sp); markPaletteLive(); savePrefs(); renderNeutrals(); markPaletteStale(); updateShareHash(); refreshClothing(); });
 
 el.btnSuggest.addEventListener('click', ()=>{
   const res=generateProposals(); renderProposals(res);
